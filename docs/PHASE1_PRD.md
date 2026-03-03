@@ -31,7 +31,7 @@ Traders need a fast and consistent way to submit orders with basic pre-trade che
    - max notional
    - price band
 6. Idempotency key handling for order placement.
-7. Order and event persistence in PostgreSQL.
+7. Order and event persistence in MySQL.
 8. Basic observability:
    - health endpoint
    - request trace id
@@ -160,13 +160,13 @@ Initial error code set:
 ## 13. Assumptions
 
 1. Phase 1 is built as a modular monolith.
-2. PostgreSQL is the source of truth.
+2. MySQL is the source of truth.
 3. Keycloak is available for JWT issuing in all environments.
 4. Market data feed is not required in Phase 1; reference values are configured/seeded.
 
 ## 14. Dependencies
 
-1. Infrastructure availability: Postgres, Redis, Keycloak.
+1. Infrastructure availability: MySQL, Redis, Keycloak.
 2. Security realm and roles configured.
 3. Seed data for instruments and risk limits.
 4. CI pipeline for repeatable validation.

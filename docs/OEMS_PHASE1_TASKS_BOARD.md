@@ -30,22 +30,22 @@ Done when: success + not found + unauthorized are listed.
 4. [x] `T004` Define non-functional targets (p95 latency, uptime target, log traceability).  
 Done when: numeric targets exist in `docs/PHASE1_PRD.md`.
 
-5. [ ] `T005` Create `docs/adr/ADR-001-modular-monolith-phase1.md`.  
+5. [x] `T005` Create `docs/adr/ADR-001-modular-monolith-phase1.md`.  
 Done when: context/decision/alternatives/consequences are filled.
 
-6. [ ] `T006` Create `docs/adr/ADR-002-postgresql-primary-store.md`.  
-Done when: rationale for Postgres is recorded.
+6. [x] `T006` Create `docs/adr/ADR-002-mysql-primary-store.md`.  
+Done when: rationale for MySQL is recorded.
 
-7. [ ] `T007` Create `docs/adr/ADR-003-keycloak-auth.md`.  
+7. [x] `T007` Create `docs/adr/ADR-003-keycloak-auth.md`.  
 Done when: token strategy and role model are documented.
 
-8. [ ] `T008` Create `docs/adr/ADR-004-idempotency-model.md`.  
+8. [x] `T008` Create `docs/adr/ADR-004-idempotency-model.md`.  
 Done when: DB-first idempotency flow is documented.
 
-9. [ ] `T009` Create `docs/DEFINITION_OF_DONE_PHASE1.md`.  
+9. [x] `T009` Create `docs/DEFINITION_OF_DONE_PHASE1.md`.  
 Done when: measurable completion checklist is present.
 
-10. [ ] `T010` Create `docs/CONTRIBUTING_PHASE1.md` with branch/PR conventions.  
+10. [x] `T010` Create `docs/CONTRIBUTING_PHASE1.md` with branch/PR conventions.  
 Done when: naming, commit style, PR checklist are defined.
 
 ---
@@ -62,10 +62,10 @@ Done when: Maven command works.
 Done when: client + server output is visible.
 
 14. [ ] `T014` Add root `.env.example` with local infra variables.  
-Done when: file contains postgres, redis, keycloak values.
+Done when: file contains mysql, redis, keycloak values.
 
-15. [ ] `T015` Add `docker-compose.yml` service for PostgreSQL 18.  
-Done when: `postgres` service starts.
+15. [ ] `T015` Add `docker-compose.yml` service for MySQL 8.4 LTS.  
+Done when: `mysql` service starts.
 
 16. [ ] `T016` Add `docker-compose.yml` service for Redis 8.6.  
 Done when: `redis` service starts.
@@ -159,7 +159,7 @@ Done when: compile target is consistent across modules.
 43. [ ] `T043` Add Spring Boot starter dependencies to `oems-api`.  
 Done when: app starts with web/security/data-jpa/actuator.
 
-44. [ ] `T044` Add Flyway and Postgres driver dependencies.  
+44. [ ] `T044` Add Flyway and MySQL driver dependencies.  
 Done when: migration runs on startup.
 
 45. [ ] `T045` Add Redis starter dependency.  
@@ -245,7 +245,7 @@ Done when: team knows roll-forward strategy.
 Done when: one command recreates local DB state.
 
 71. [ ] `T071` Add script `scripts/db-connect.ps1` helper.  
-Done when: command opens psql for local DB quickly.
+Done when: command opens mysql client for local DB quickly.
 
 72. [ ] `T072` Verify migrations on completely fresh containerized DB.  
 Done when: app boots and all tables are present.
@@ -728,8 +728,8 @@ Done when: reject surge generates alert.
 221. [ ] `T221` Configure JUnit 5 baseline test setup across modules.  
 Done when: all modules run tests from root build.
 
-222. [ ] `T222` Configure Testcontainers for PostgreSQL integration tests.  
-Done when: integration suite starts isolated Postgres.
+222. [ ] `T222` Configure Testcontainers for MySQL integration tests.  
+Done when: integration suite starts isolated MySQL.
 
 223. [ ] `T223` Configure Testcontainers for Redis integration tests.  
 Done when: idempotency tests run with isolated Redis.

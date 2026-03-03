@@ -44,7 +44,7 @@ This guide is written so you can execute it step by step and also learn required
 - Java: `25` (LTS)
 - Spring Boot: `4.0.3`
 - Build: Maven `3.9+`
-- DB: PostgreSQL `18.x`
+- DB: MySQL `8.4 LTS`
 - Cache/idempotency fast path: Redis `8.6.x`
 - Auth server: Keycloak `26.5.x`
 - Optional event bus: Kafka `4.1.x` (not required for Phase 1)
@@ -174,7 +174,7 @@ Record major technical choices early to avoid rework.
 1. Create `docs/adr/`.
 2. Add ADR files:
    - `ADR-001-modular-monolith-phase1.md`
-   - `ADR-002-postgresql-primary-store.md`
+   - `ADR-002-mysql-primary-store.md`
    - `ADR-003-keycloak-for-auth.md`
    - `ADR-004-idempotency-with-db-and-redis.md`
 3. For each ADR, include:
@@ -213,7 +213,7 @@ Create `docs/architecture/01-system-context.md` with Mermaid:
 ```mermaid
 flowchart LR
     Trader[Trader UI or API Client] -->|HTTPS + JWT| OEMS[OEMS API]
-    OEMS -->|SQL| PG[(PostgreSQL)]
+    OEMS -->|SQL| MY[(MySQL)]
     OEMS -->|Cache/Idempotency| Redis[(Redis)]
     OEMS -->|OIDC/JWKS| KC[Keycloak]
     Ops[Ops User] -->|Metrics| Grafana[Grafana]
@@ -237,8 +237,8 @@ flowchart TB
     Orders --> Risk
     Orders --> Audit
     Auth --> Keycloak
-    Orders --> PostgreSQL
-    Audit --> PostgreSQL
+    Orders --> MySQL
+    Audit --> MySQL
     Orders --> Redis
 ```
 
@@ -250,7 +250,7 @@ sequenceDiagram
     participant A as OEMS API
     participant R as Risk Module
     participant D as RefData Module
-    participant DB as PostgreSQL
+    participant DB as MySQL
     participant C as Redis
 
     T->>A: POST /v1/orders + JWT + Idempotency-Key
@@ -358,7 +358,7 @@ Get reproducible local setup for all developers.
    - Docker Desktop
 2. Create `docs/SETUP.md` with all commands.
 3. Add `docker-compose.yml` for:
-   - postgres
+   - mysql
    - redis
    - keycloak
    - prometheus
@@ -368,15 +368,16 @@ Minimal compose skeleton:
 
 ```yaml
 services:
-  postgres:
-    image: postgres:18
+  mysql:
+    image: mysql:8.4
     environment:
-      POSTGRES_USER: oems
-      POSTGRES_PASSWORD: oems
-      POSTGRES_DB: oems
-    ports: ["5432:5432"]
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: oems
+      MYSQL_USER: oems
+      MYSQL_PASSWORD: oems
+    ports: ["3306:3306"]
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - mysqldata:/var/lib/mysql
 
   redis:
     image: redis:8.6
@@ -391,7 +392,7 @@ services:
     ports: ["8089:8080"]
 
 volumes:
-  pgdata:
+  mysqldata:
 ```
 
 4. Add startup command docs:
@@ -473,57 +474,62 @@ Create migration `V1__baseline.sql` with core tables.
 
 ```sql
 CREATE TABLE instrument (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     symbol VARCHAR(32) NOT NULL UNIQUE,
     name VARCHAR(128) NOT NULL,
     tradable BOOLEAN NOT NULL DEFAULT TRUE,
-    tick_size NUMERIC(18,8) NOT NULL,
-    min_qty NUMERIC(18,8) NOT NULL,
-    max_qty NUMERIC(18,8) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    tick_size DECIMAL(18,8) NOT NULL,
+    min_qty DECIMAL(18,8) NOT NULL,
+    max_qty DECIMAL(18,8) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE order_book (
-    id UUID PRIMARY KEY,
+    id CHAR(36) PRIMARY KEY,
     client_order_id VARCHAR(64),
     trader_id VARCHAR(64) NOT NULL,
     symbol VARCHAR(32) NOT NULL,
-    side VARCHAR(8) NOT NULL CHECK (side IN ('BUY', 'SELL')),
-    order_type VARCHAR(16) NOT NULL CHECK (order_type IN ('MARKET', 'LIMIT')),
-    quantity NUMERIC(18,8) NOT NULL CHECK (quantity > 0),
-    price NUMERIC(18,8),
-    notional NUMERIC(20,8) NOT NULL,
+    side VARCHAR(8) NOT NULL,
+    order_type VARCHAR(16) NOT NULL,
+    quantity DECIMAL(18,8) NOT NULL,
+    price DECIMAL(18,8),
+    notional DECIMAL(20,8) NOT NULL,
     status VARCHAR(16) NOT NULL,
     rejection_reason VARCHAR(128),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    version INT NOT NULL DEFAULT 0
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    version INT NOT NULL DEFAULT 0,
+    CONSTRAINT chk_order_book_side CHECK (side IN ('BUY', 'SELL')),
+    CONSTRAINT chk_order_book_order_type CHECK (order_type IN ('MARKET', 'LIMIT')),
+    CONSTRAINT chk_order_book_quantity CHECK (quantity > 0)
 );
 
 CREATE INDEX idx_order_book_trader_created
     ON order_book (trader_id, created_at DESC);
 
 CREATE TABLE order_event (
-    id BIGSERIAL PRIMARY KEY,
-    order_id UUID NOT NULL REFERENCES order_book(id),
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    order_id CHAR(36) NOT NULL,
     event_type VARCHAR(32) NOT NULL,
-    payload JSONB NOT NULL,
+    payload JSON NOT NULL,
     trace_id VARCHAR(64),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_order_event_order
+        FOREIGN KEY (order_id) REFERENCES order_book(id)
 );
 
 CREATE INDEX idx_order_event_order_id_created
-    ON order_event(order_id, created_at ASC);
+    ON order_event(order_id, created_at);
 
 CREATE TABLE idempotency_key (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     idem_key VARCHAR(128) NOT NULL UNIQUE,
     request_hash VARCHAR(128) NOT NULL,
-    order_id UUID,
+    order_id CHAR(36),
     response_status INT NOT NULL,
-    response_body JSONB NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    expires_at TIMESTAMPTZ NOT NULL
+    response_body JSON NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL
 );
 ```
 
@@ -531,13 +537,13 @@ Create migration `V2__risk_limits.sql`:
 
 ```sql
 CREATE TABLE risk_limit (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
     trader_id VARCHAR(64) NOT NULL,
     symbol VARCHAR(32),
-    max_qty NUMERIC(18,8) NOT NULL,
-    max_notional NUMERIC(20,8) NOT NULL,
-    price_band_pct NUMERIC(8,4) NOT NULL,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    max_qty DECIMAL(18,8) NOT NULL,
+    max_notional DECIMAL(20,8) NOT NULL,
+    price_band_pct DECIMAL(8,4) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_risk_limit_trader_symbol
@@ -580,7 +586,7 @@ Ensure deterministic schema evolution through Flyway.
 
 ```powershell
 docker compose down -v
-docker compose up -d postgres
+docker compose up -d mysql
 ```
 
 ### Deliverables
@@ -987,7 +993,7 @@ Prove correctness for critical order flows before production.
    - notional calculation
    - request validation
 2. Integration tests with Testcontainers:
-   - PostgreSQL + Redis
+   - MySQL + Redis
    - migration startup
    - order placement tx behavior
 3. API tests:
@@ -1362,8 +1368,8 @@ After Phase 1 is stable:
   - https://docs.spring.io/spring-boot/system-requirements.html
 - OpenJDK releases:
   - https://openjdk.org/projects/jdk/
-- PostgreSQL release status:
-  - https://www.postgresql.org/
+- MySQL release notes:
+  - https://dev.mysql.com/doc/relnotes/mysql/8.4/en/
 - Redis OSS 8.6 release notes:
   - https://redis.io/docs/latest/operate/oss_and_stack/stack-with-enterprise/release-notes/redisce/redisos-8.6-release-notes/
 - Keycloak releases:
