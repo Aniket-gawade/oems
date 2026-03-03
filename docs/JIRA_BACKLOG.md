@@ -36,6 +36,7 @@ Status values: `To Do`, `In Progress`, `Blocked`, `Done`
 | OEMS-101 | Task | OEMS-EP1 | Monorepo modules and parent POM | 3 | Done | - | 2026-03-03 | Completed in local scaffold |
 | OEMS-102 | Task | OEMS-EP1 | Use `application.properties` across services | 1 | Done | - | 2026-03-03 | Converted from YAML |
 | OEMS-103 | Task | OEMS-EP1 | MySQL + Flyway baseline per service | 3 | Done | - | 2026-03-03 | Baseline migration placeholders added |
+| OEMS-109 | Task | OEMS-EP1 | Architecture + DB + order flow diagrams in repo | 2 | Done | - | 2026-03-03 | Added Mermaid diagrams under `docs/diagrams` |
 | OEMS-104 | Story | OEMS-EP1 | Docker Compose for MySQL/Redis/Prometheus/Grafana | 5 | To Do |  |  |  |
 | OEMS-105 | Story | OEMS-EP1 | JWT auth + roles (`TRADER`,`RISK`,`OPS`) | 5 | To Do |  |  |  |
 | OEMS-106 | Story | OEMS-EP1 | Global error model + exception handling | 3 | To Do |  |  |  |
