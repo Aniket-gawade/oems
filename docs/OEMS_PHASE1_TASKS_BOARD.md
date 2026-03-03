@@ -21,13 +21,13 @@ Status legend:
 1. [x] `T001` Create `docs/PHASE1_PRD.md` with scope, non-scope, and user stories.  
 Done when: document includes place order + get order story.
 
-2. [ ] `T002` Define functional acceptance criteria for `POST /v1/orders`.  
+2. [x] `T002` Define functional acceptance criteria for `POST /v1/orders`.  
 Done when: success + all failure cases are listed.
 
-3. [ ] `T003` Define functional acceptance criteria for `GET /v1/orders/{id}`.  
+3. [x] `T003` Define functional acceptance criteria for `GET /v1/orders/{id}`.  
 Done when: success + not found + unauthorized are listed.
 
-4. [ ] `T004` Define non-functional targets (p95 latency, uptime target, log traceability).  
+4. [x] `T004` Define non-functional targets (p95 latency, uptime target, log traceability).  
 Done when: numeric targets exist in `docs/PHASE1_PRD.md`.
 
 5. [ ] `T005` Create `docs/adr/ADR-001-modular-monolith-phase1.md`.  

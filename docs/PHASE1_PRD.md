@@ -131,15 +131,22 @@ Initial error code set:
 ## 11. Non-Functional Requirements (Phase 1 Targets)
 
 1. Performance
-   - `POST /v1/orders` p95 under 150 ms in staging baseline load.
+   - `POST /v1/orders` p95 <= 150 ms at steady load (baseline: 100 RPS, 10 minutes, staging profile).
+   - `POST /v1/orders` p99 <= 300 ms under the same baseline load.
 2. Reliability
-   - No duplicate order creation for idempotent retries.
-3. Security
+   - Duplicate order creation rate due to retries must be 0% for test scenarios using same idempotency key.
+   - Error rate (5xx) for order placement must remain <= 0.5% during baseline load test.
+3. Availability
+   - Service uptime target >= 99.5% per calendar month (Phase 1 single-region target).
+   - Planned maintenance downtime budget <= 2 hours per month.
+4. Security
    - JWT validation and role checks on all protected endpoints.
-4. Observability
-   - All requests include trace id.
-   - Core metrics exposed to Prometheus.
-5. Data Integrity
+5. Observability and Log Traceability
+   - 100% of API responses must include `X-Trace-Id`.
+   - >= 99.9% of request logs must contain `traceId`, `path`, and `httpStatus`.
+   - >= 99.9% of error logs must contain `traceId` and `errorCode`.
+   - Core metrics must be scrapeable by Prometheus every 15 seconds.
+6. Data Integrity
    - Order and event writes occur atomically.
 
 ## 12. Success Metrics
@@ -180,3 +187,88 @@ Initial error code set:
 3. Migration and deployment are automated.
 4. UAT completed with no open blockers.
 
+## 17. Functional Acceptance Criteria - `POST /v1/orders`
+
+### Success cases
+
+1. `AC-POST-001` Accepted limit order
+   - Given a valid `TRADER` token, valid symbol, valid limit price, valid qty, and valid `Idempotency-Key`
+   - When trader calls `POST /v1/orders`
+   - Then API returns `201 Created` with `orderId`, `status=NEW`, and request details
+   - And `order_book` row is persisted
+   - And `ORDER_RECEIVED` + `ORDER_ACCEPTED` events are persisted
+
+2. `AC-POST-002` Accepted market order
+   - Given valid `TRADER` token, valid symbol, valid qty, and valid `Idempotency-Key`
+   - When trader calls `POST /v1/orders` with `orderType=MARKET`
+   - Then API returns `201 Created` with `status=NEW`
+
+3. `AC-POST-003` Idempotent replay success
+   - Given an already-processed request with same `Idempotency-Key` and same payload
+   - When trader retries `POST /v1/orders`
+   - Then API returns original response without creating a new order
+
+### Failure cases
+
+1. `AC-POST-101` Missing/invalid JWT
+   - Then API returns `401 Unauthorized` with `code=UNAUTHORIZED`
+
+2. `AC-POST-102` Authenticated but wrong role
+   - Then API returns `403 Forbidden` with `code=FORBIDDEN`
+
+3. `AC-POST-103` Missing `Idempotency-Key`
+   - Then API returns `400 Bad Request` with `code=VALIDATION_ERROR`
+
+4. `AC-POST-104` Invalid request payload (missing fields, wrong enum, invalid qty/price)
+   - Then API returns `400 Bad Request` with `code=VALIDATION_ERROR`
+
+5. `AC-POST-105` Instrument not found
+   - Then API returns `404 Not Found` with `code=INSTRUMENT_NOT_FOUND`
+
+6. `AC-POST-106` Instrument not tradable
+   - Then API returns `422 Unprocessable Entity` with `code=INSTRUMENT_NOT_TRADABLE`
+
+7. `AC-POST-107` Risk: max qty exceeded
+   - Then API returns `422 Unprocessable Entity` with `code=RISK_MAX_QTY_EXCEEDED`
+
+8. `AC-POST-108` Risk: max notional exceeded
+   - Then API returns `422 Unprocessable Entity` with `code=RISK_MAX_NOTIONAL_EXCEEDED`
+
+9. `AC-POST-109` Risk: price band exceeded
+   - Then API returns `422 Unprocessable Entity` with `code=RISK_PRICE_BAND_EXCEEDED`
+
+10. `AC-POST-110` Same idempotency key with different payload
+    - Then API returns `409 Conflict` with `code=IDEMPOTENCY_CONFLICT`
+
+11. `AC-POST-111` Unexpected system error
+    - Then API returns `500 Internal Server Error` with `code=INTERNAL_SERVER_ERROR`
+
+### Additional conditions
+
+1. Every `POST /v1/orders` response (success/failure) must include `traceId`.
+2. Every request must persist at least `ORDER_RECEIVED` audit event unless request fails before business processing (for example auth failure before controller).
+
+## 18. Functional Acceptance Criteria - `GET /v1/orders/{orderId}`
+
+### Success case
+
+1. `AC-GET-001` Valid order lookup
+   - Given valid `TRADER` token and an existing order owned by that trader
+   - When trader calls `GET /v1/orders/{orderId}`
+   - Then API returns `200 OK` with order details (`orderId`, `status`, `symbol`, `side`, `orderType`, `quantity`, `price`, `createdAt`)
+
+### Failure cases
+
+1. `AC-GET-101` Missing/invalid JWT
+   - Then API returns `401 Unauthorized` with `code=UNAUTHORIZED`
+
+2. `AC-GET-102` Order not found
+   - Then API returns `404 Not Found` with `code=RESOURCE_NOT_FOUND` (or agreed order-not-found code)
+
+3. `AC-GET-103` Authenticated but not allowed to access this order
+   - Then API returns `403 Forbidden` with `code=FORBIDDEN` or `404 Not Found` by privacy policy
+
+### Additional conditions
+
+1. Response includes `traceId` on failures.
+2. Endpoint is read-only and does not mutate order state.
