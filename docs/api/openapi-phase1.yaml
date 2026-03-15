@@ -1,0 +1,555 @@
+openapi: 3.1.0
+info:
+  title: OEMS Phase 1 API
+  version: 1.0.0-phase1
+  description: |
+    Phase 1 contract for order placement, order lookup, and instrument lookup.
+    All error responses use a canonical ApiError schema with traceId.
+servers:
+  - url: http://localhost:8080
+    description: Local development
+tags:
+  - name: Orders
+  - name: Instruments
+security:
+  - bearerAuth: []
+paths:
+  /v1/orders:
+    post:
+      tags: [Orders]
+      summary: Place a new order
+      operationId: placeOrder
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          description: Client-supplied idempotency key for safe retries.
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+            examples:
+              limitOrder:
+                $ref: '#/components/examples/PlaceOrderRequestLimit'
+              marketOrder:
+                $ref: '#/components/examples/PlaceOrderRequestMarket'
+      responses:
+        '201':
+          description: Order accepted and persisted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlaceOrderResponse'
+              examples:
+                accepted:
+                  $ref: '#/components/examples/PlaceOrderResponseAccepted'
+        '400':
+          $ref: '#/components/responses/ValidationErrorResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/InstrumentNotFoundErrorResponse'
+        '409':
+          $ref: '#/components/responses/IdempotencyConflictErrorResponse'
+        '422':
+          $ref: '#/components/responses/BusinessRuleErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v1/orders/{orderId}:
+    get:
+      tags: [Orders]
+      summary: Get order details by order id
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Server-generated order identifier.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order found and visible to requester.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderDetailResponse'
+              examples:
+                found:
+                  $ref: '#/components/examples/OrderDetailResponseFound'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/ResourceNotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+  /v1/instruments/{symbol}:
+    get:
+      tags: [Instruments]
+      summary: Get instrument details by symbol
+      operationId: getInstrumentBySymbol
+      parameters:
+        - name: symbol
+          in: path
+          required: true
+          description: Tradable symbol (case-sensitive canonical form).
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 32
+      responses:
+        '200':
+          description: Instrument found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstrumentResponse'
+              examples:
+                found:
+                  $ref: '#/components/examples/InstrumentResponseFound'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '404':
+          $ref: '#/components/responses/InstrumentNotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    OrderSide:
+      type: string
+      enum: [BUY, SELL]
+    OrderType:
+      type: string
+      enum: [MARKET, LIMIT]
+    OrderStatus:
+      type: string
+      enum: [NEW, REJECTED]
+    ErrorCode:
+      type: string
+      enum:
+        - VALIDATION_ERROR
+        - UNAUTHORIZED
+        - FORBIDDEN
+        - RESOURCE_NOT_FOUND
+        - INSTRUMENT_NOT_FOUND
+        - INSTRUMENT_NOT_TRADABLE
+        - RISK_MAX_QTY_EXCEEDED
+        - RISK_MAX_NOTIONAL_EXCEEDED
+        - RISK_PRICE_BAND_EXCEEDED
+        - IDEMPOTENCY_CONFLICT
+        - INTERNAL_SERVER_ERROR
+    PlaceOrderRequest:
+      type: object
+      additionalProperties: false
+      required:
+        - clientOrderId
+        - symbol
+        - side
+        - orderType
+        - quantity
+      properties:
+        clientOrderId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          example: cli-1001
+        symbol:
+          type: string
+          minLength: 1
+          maxLength: 32
+          example: AAPL
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        orderType:
+          $ref: '#/components/schemas/OrderType'
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+          example: 10
+        price:
+          type: [number, 'null']
+          exclusiveMinimum: 0
+          description: Required for LIMIT orders, omitted for MARKET orders.
+          example: 182.50
+      allOf:
+        - if:
+            properties:
+              orderType:
+                const: LIMIT
+          then:
+            required: [price]
+    PlaceOrderResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - status
+        - symbol
+        - side
+        - orderType
+        - quantity
+        - createdAt
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        symbol:
+          type: string
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        orderType:
+          $ref: '#/components/schemas/OrderType'
+        quantity:
+          type: number
+        price:
+          type: [number, 'null']
+        createdAt:
+          type: string
+          format: date-time
+    OrderDetailResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - orderId
+        - traderId
+        - status
+        - symbol
+        - side
+        - orderType
+        - quantity
+        - createdAt
+        - updatedAt
+      properties:
+        orderId:
+          type: string
+          format: uuid
+        traderId:
+          type: string
+          example: trader1
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        symbol:
+          type: string
+        side:
+          $ref: '#/components/schemas/OrderSide'
+        orderType:
+          $ref: '#/components/schemas/OrderType'
+        quantity:
+          type: number
+        price:
+          type: [number, 'null']
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    InstrumentResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - symbol
+        - name
+        - tradable
+        - tickSize
+        - minQty
+        - maxQty
+      properties:
+        symbol:
+          type: string
+          example: AAPL
+        name:
+          type: string
+          example: Apple Inc.
+        tradable:
+          type: boolean
+          example: true
+        tickSize:
+          type: number
+          example: 0.01
+        minQty:
+          type: number
+          example: 1
+        maxQty:
+          type: number
+          example: 10000
+    ApiError:
+      type: object
+      additionalProperties: false
+      required:
+        - code
+        - message
+        - status
+        - path
+        - timestamp
+        - traceId
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+        status:
+          type: integer
+          minimum: 100
+          maximum: 599
+        path:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        traceId:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+  responses:
+    ValidationErrorResponse:
+      description: Request failed schema or business field validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            validation:
+              $ref: '#/components/examples/ValidationErrorExample'
+    UnauthorizedErrorResponse:
+      description: Missing or invalid JWT.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            unauthorized:
+              $ref: '#/components/examples/UnauthorizedErrorExample'
+    ForbiddenErrorResponse:
+      description: JWT is valid but role is not allowed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            forbidden:
+              $ref: '#/components/examples/ForbiddenErrorExample'
+    ResourceNotFoundErrorResponse:
+      description: Generic resource not found (order or scoped entity).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            resourceNotFound:
+              $ref: '#/components/examples/ResourceNotFoundErrorExample'
+    InstrumentNotFoundErrorResponse:
+      description: Instrument symbol was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            instrumentNotFound:
+              $ref: '#/components/examples/InstrumentNotFoundErrorExample'
+    IdempotencyConflictErrorResponse:
+      description: Idempotency key already used with a different payload.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            idempotencyConflict:
+              $ref: '#/components/examples/IdempotencyConflictErrorExample'
+    BusinessRuleErrorResponse:
+      description: Request rejected due to domain rule violations.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            instrumentNotTradable:
+              $ref: '#/components/examples/InstrumentNotTradableErrorExample'
+            riskMaxQty:
+              $ref: '#/components/examples/RiskMaxQtyExceededErrorExample'
+            riskMaxNotional:
+              $ref: '#/components/examples/RiskMaxNotionalExceededErrorExample'
+            riskPriceBand:
+              $ref: '#/components/examples/RiskPriceBandExceededErrorExample'
+    InternalServerErrorResponse:
+      description: Unexpected technical failure.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+          examples:
+            internalServerError:
+              $ref: '#/components/examples/InternalServerErrorExample'
+  examples:
+    PlaceOrderRequestLimit:
+      summary: Valid LIMIT order request
+      value:
+        clientOrderId: cli-1001
+        symbol: AAPL
+        side: BUY
+        orderType: LIMIT
+        quantity: 10
+        price: 182.50
+    PlaceOrderRequestMarket:
+      summary: Valid MARKET order request
+      value:
+        clientOrderId: cli-1002
+        symbol: MSFT
+        side: SELL
+        orderType: MARKET
+        quantity: 25
+    PlaceOrderResponseAccepted:
+      summary: Order accepted
+      value:
+        orderId: 5bba47f9-d353-4664-9f35-7e9ee5b71adf
+        status: NEW
+        symbol: AAPL
+        side: BUY
+        orderType: LIMIT
+        quantity: 10
+        price: 182.50
+        createdAt: '2026-03-15T11:30:00Z'
+    OrderDetailResponseFound:
+      summary: Existing order detail
+      value:
+        orderId: 5bba47f9-d353-4664-9f35-7e9ee5b71adf
+        traderId: trader1
+        status: NEW
+        symbol: AAPL
+        side: BUY
+        orderType: LIMIT
+        quantity: 10
+        price: 182.50
+        createdAt: '2026-03-15T11:30:00Z'
+        updatedAt: '2026-03-15T11:30:00Z'
+    InstrumentResponseFound:
+      summary: Existing instrument detail
+      value:
+        symbol: AAPL
+        name: Apple Inc.
+        tradable: true
+        tickSize: 0.01
+        minQty: 1
+        maxQty: 10000
+    ValidationErrorExample:
+      summary: VALIDATION_ERROR
+      value:
+        code: VALIDATION_ERROR
+        message: Request validation failed.
+        status: 400
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:10Z'
+        traceId: 77b3ee3986f840b5
+        details:
+          fieldErrors:
+            - field: quantity
+              reason: must be greater than 0
+    UnauthorizedErrorExample:
+      summary: UNAUTHORIZED
+      value:
+        code: UNAUTHORIZED
+        message: Missing or invalid bearer token.
+        status: 401
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:11Z'
+        traceId: b8b99f14f5f0457d
+    ForbiddenErrorExample:
+      summary: FORBIDDEN
+      value:
+        code: FORBIDDEN
+        message: Insufficient permissions for this operation.
+        status: 403
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:12Z'
+        traceId: d7e4bf17d7454abb
+    ResourceNotFoundErrorExample:
+      summary: RESOURCE_NOT_FOUND
+      value:
+        code: RESOURCE_NOT_FOUND
+        message: Order not found.
+        status: 404
+        path: /v1/orders/5bba47f9-d353-4664-9f35-7e9ee5b71adf
+        timestamp: '2026-03-15T11:35:13Z'
+        traceId: a9eb567f3f3e4041
+    InstrumentNotFoundErrorExample:
+      summary: INSTRUMENT_NOT_FOUND
+      value:
+        code: INSTRUMENT_NOT_FOUND
+        message: Instrument symbol not found.
+        status: 404
+        path: /v1/instruments/UNKNOWN
+        timestamp: '2026-03-15T11:35:14Z'
+        traceId: c11db3e1186f4970
+    InstrumentNotTradableErrorExample:
+      summary: INSTRUMENT_NOT_TRADABLE
+      value:
+        code: INSTRUMENT_NOT_TRADABLE
+        message: Instrument is currently not tradable.
+        status: 422
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:15Z'
+        traceId: 97dfd6a8f41b4c6a
+    RiskMaxQtyExceededErrorExample:
+      summary: RISK_MAX_QTY_EXCEEDED
+      value:
+        code: RISK_MAX_QTY_EXCEEDED
+        message: Order quantity exceeds configured risk limit.
+        status: 422
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:16Z'
+        traceId: 5d6f28eb3c29415f
+    RiskMaxNotionalExceededErrorExample:
+      summary: RISK_MAX_NOTIONAL_EXCEEDED
+      value:
+        code: RISK_MAX_NOTIONAL_EXCEEDED
+        message: Order notional exceeds configured risk limit.
+        status: 422
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:17Z'
+        traceId: fbdba9244ca443ea
+    RiskPriceBandExceededErrorExample:
+      summary: RISK_PRICE_BAND_EXCEEDED
+      value:
+        code: RISK_PRICE_BAND_EXCEEDED
+        message: Limit price is outside allowed price band.
+        status: 422
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:18Z'
+        traceId: 8a607ad4ac5b4b1f
+    IdempotencyConflictErrorExample:
+      summary: IDEMPOTENCY_CONFLICT
+      value:
+        code: IDEMPOTENCY_CONFLICT
+        message: Idempotency key already used with different payload.
+        status: 409
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:19Z'
+        traceId: 2d7c8b3326f648e1
+    InternalServerErrorExample:
+      summary: INTERNAL_SERVER_ERROR
+      value:
+        code: INTERNAL_SERVER_ERROR
+        message: Unexpected internal error occurred.
+        status: 500
+        path: /v1/orders
+        timestamp: '2026-03-15T11:35:20Z'
+        traceId: 1799347df8cd4ac2

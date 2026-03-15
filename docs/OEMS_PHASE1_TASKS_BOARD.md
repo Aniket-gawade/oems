@@ -98,40 +98,40 @@ Done when: `.env` and local artifacts are not tracked.
 
 ## Phase C - Architecture and API Design Artifacts
 
-25. [ ] `T025` Create `docs/architecture/01-system-context.md` with Mermaid diagram.  
+25. [x] `T025` Create `docs/architecture/01-system-context.md` with Mermaid diagram.  
 Done when: user, API, DB, Redis, Keycloak nodes are shown.
 
-26. [ ] `T026` Create `docs/architecture/02-container-view.md`.  
+26. [x] `T026` Create `docs/architecture/02-container-view.md`.  
 Done when: modules (`order`, `risk`, `audit`, `ref-data`) are shown.
 
-27. [ ] `T027` Create `docs/architecture/03-sequence-place-order.md`.  
+27. [x] `T027` Create `docs/architecture/03-sequence-place-order.md`.  
 Done when: success and idempotent replay paths are shown.
 
-28. [ ] `T028` Create `docs/architecture/04-erd.md`.  
+28. [x] `T028` Create `docs/architecture/04-erd.md`.  
 Done when: `instrument`, `order_book`, `order_event`, `idempotency_key` are modeled.
 
-29. [ ] `T029` Create `docs/api/openapi-phase1.yaml` skeleton.  
+29. [x] `T029` Create `docs/api/openapi-phase1.yaml` skeleton.  
 Done when: OpenAPI file validates as YAML.
 
-30. [ ] `T030` Add `POST /v1/orders` contract to OpenAPI.  
+30. [x] `T030` Add `POST /v1/orders` contract to OpenAPI.  
 Done when: request/response/error schemas are present.
 
-31. [ ] `T031` Add `GET /v1/orders/{orderId}` contract to OpenAPI.  
+31. [x] `T031` Add `GET /v1/orders/{orderId}` contract to OpenAPI.  
 Done when: path param and response schemas are present.
 
-32. [ ] `T032` Add `GET /v1/instruments/{symbol}` contract to OpenAPI.  
+32. [x] `T032` Add `GET /v1/instruments/{symbol}` contract to OpenAPI.  
 Done when: instrument response schema exists.
 
-33. [ ] `T033` Define canonical API error schema with `traceId`.  
+33. [x] `T033` Define canonical API error schema with `traceId`.  
 Done when: all endpoints reference the same error schema.
 
-34. [ ] `T034` Add OpenAPI examples for success and each rejection code.  
+34. [x] `T034` Add OpenAPI examples for success and each rejection code.  
 Done when: spec includes example payloads.
 
-35. [ ] `T035` Create `docs/API_ERROR_CODES.md` with machine-readable codes.  
+35. [x] `T035` Create `docs/API_ERROR_CODES.md` with machine-readable codes.  
 Done when: codes are unique and categorized.
 
-36. [ ] `T036` Create `docs/DOMAIN_GLOSSARY.md` with order/risk terminology.  
+36. [x] `T036` Create `docs/DOMAIN_GLOSSARY.md` with order/risk terminology.  
 Done when: all business terms used in APIs are defined.
 
 ---
