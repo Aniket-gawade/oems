@@ -52,46 +52,46 @@ Done when: naming, commit style, PR checklist are defined.
 
 ## Phase B - Local Tooling and Infrastructure
 
-11. [ ] `T011` Install JDK 25 and verify with `java -version`.  
+11. [x] `T011` Install JDK 25 and verify with `java -version`.  
 Done when: version output shows JDK 25.
 
-12. [ ] `T012` Install Maven 3.9+ and verify with `mvn -version`.  
+12. [x] `T012` Install Maven 3.9+ and verify with `mvn -version`.  
 Done when: Maven command works.
 
-13. [ ] `T013` Install Docker Desktop and verify `docker version`.  
+13. [x] `T013` Install Docker Desktop and verify `docker version`.  
 Done when: client + server output is visible.
 
-14. [ ] `T014` Add root `.env.example` with local infra variables.  
+14. [x] `T014` Add root `.env.example` with local infra variables.  
 Done when: file contains mysql, redis, keycloak values.
 
-15. [ ] `T015` Add `docker-compose.yml` service for MySQL 8.4 LTS.  
+15. [x] `T015` Add `docker-compose.yml` service for MySQL 8.4 LTS.  
 Done when: `mysql` service starts.
 
-16. [ ] `T016` Add `docker-compose.yml` service for Redis 8.6.  
+16. [x] `T016` Add `docker-compose.yml` service for Redis 8.6.  
 Done when: `redis` service starts.
 
-17. [ ] `T017` Add `docker-compose.yml` service for Keycloak 26.5.x.  
+17. [x] `T017` Add `docker-compose.yml` service for Keycloak 26.5.x.  
 Done when: Keycloak admin console is accessible.
 
-18. [ ] `T018` Add optional Prometheus service to compose.  
+18. [x] `T018` Add optional Prometheus service to compose.  
 Done when: Prometheus UI is reachable.
 
-19. [ ] `T019` Add optional Grafana service to compose.  
+19. [x] `T019` Add optional Grafana service to compose.  
 Done when: Grafana UI is reachable.
 
-20. [ ] `T020` Create `docs/SETUP.md` with exact local startup steps.  
+20. [x] `T020` Create `docs/SETUP.md` with exact local startup steps.  
 Done when: new developer can run setup without verbal help.
 
-21. [ ] `T021` Create `scripts/dev-up.ps1` to start compose services.  
+21. [x] `T021` Create `scripts/dev-up.ps1` to start compose services.  
 Done when: one command brings infra up.
 
-22. [ ] `T022` Create `scripts/dev-down.ps1` to stop services and optional volume reset.  
+22. [x] `T022` Create `scripts/dev-down.ps1` to stop services and optional volume reset.  
 Done when: services stop cleanly.
 
-23. [ ] `T023` Create `scripts/dev-healthcheck.ps1` for infra readiness checks.  
+23. [x] `T023` Create `scripts/dev-healthcheck.ps1` for infra readiness checks.  
 Done when: script fails if any required service is down.
 
-24. [ ] `T024` Add `.gitignore` entries for local secrets and IDE files.  
+24. [x] `T024` Add `.gitignore` entries for local secrets and IDE files.  
 Done when: `.env` and local artifacts are not tracked.
 
 ---
