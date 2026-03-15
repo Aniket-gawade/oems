@@ -138,52 +138,52 @@ Done when: all business terms used in APIs are defined.
 
 ## Phase D - Application Bootstrap (Codebase Foundation)
 
-37. [ ] `T037` Create or refactor to root parent Maven `pom.xml` with module list.  
+37. [x] `T037` Create or refactor to root parent Maven `pom.xml` with module list.  
 Done when: effective POM is valid.
 
-38. [ ] `T038` Create module `shared/common` if missing.  
+38. [x] `T038` Create module `shared/common` if missing.  
 Done when: module builds and is importable.
 
-39. [ ] `T039` Create module `shared/contracts` if missing.  
+39. [x] `T039` Create module `shared/contracts` if missing.  
 Done when: module builds and is importable.
 
-40. [ ] `T040` Create module `apps/oems-api` (Phase 1 deployable app).  
+40. [x] `T040` Create module `apps/oems-api` (Phase 1 deployable app).  
 Done when: Spring app starts from this module.
 
-41. [ ] `T041` Add dependency management section (versions in one place).  
+41. [x] `T041` Add dependency management section (versions in one place).  
 Done when: child modules rely on managed versions.
 
-42. [ ] `T042` Configure Java release level in parent POM (`25`).  
+42. [x] `T042` Configure Java release level in parent POM (`25`).  
 Done when: compile target is consistent across modules.
 
-43. [ ] `T043` Add Spring Boot starter dependencies to `oems-api`.  
+43. [x] `T043` Add Spring Boot starter dependencies to `oems-api`.  
 Done when: app starts with web/security/data-jpa/actuator.
 
-44. [ ] `T044` Add Flyway and MySQL driver dependencies.  
+44. [x] `T044` Add Flyway and MySQL driver dependencies.  
 Done when: migration runs on startup.
 
-45. [ ] `T045` Add Redis starter dependency.  
+45. [x] `T045` Add Redis starter dependency.  
 Done when: Redis template bean can be created.
 
-46. [ ] `T046` Add validation starter dependency.  
+46. [x] `T046` Add validation starter dependency.  
 Done when: Bean Validation annotations work on DTOs.
 
-47. [ ] `T047` Create package layout (`api`, `application`, `domain`, `infrastructure`, `config`).  
+47. [x] `T047` Create package layout (`api`, `application`, `domain`, `infrastructure`, `config`).  
 Done when: structure exists and follows layering.
 
-48. [ ] `T048` Add `application-local.properties` with local DB/Redis/Keycloak settings.  
+48. [x] `T048` Add `application-local.properties` with local DB/Redis/Keycloak settings.  
 Done when: app runs with `local` profile.
 
-49. [ ] `T049` Add `application-test.properties` for test runtime overrides.  
+49. [x] `T049` Add `application-test.properties` for test runtime overrides.  
 Done when: tests can run isolated from local profile.
 
-50. [ ] `T050` Add startup banner/logging configuration for profile visibility.  
+50. [x] `T050` Add startup banner/logging configuration for profile visibility.  
 Done when: startup logs show active profile and ports.
 
-51. [ ] `T051` Add root scripts for build/test/run shortcuts.  
+51. [x] `T051` Add root scripts for build/test/run shortcuts.  
 Done when: developer runs build with a single command.
 
-52. [ ] `T052` Ensure baseline `mvn clean verify` passes from root.  
+52. [x] `T052` Ensure baseline `mvn clean verify` passes from root.  
 Done when: build is green on clean checkout.
 
 ---
