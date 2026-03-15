@@ -823,7 +823,7 @@ Done when: `docs/POST_RELEASE_PHASE1.md` is created.
 
 ## Milestone Gates
 
-251. [ ] `T251` Gate 1 complete: planning + setup + architecture docs done.  
+251. [x] `T251` Gate 1 complete: planning + setup + architecture docs done.  
 Depends on: `T001` to `T036`.
 
 252. [ ] `T252` Gate 2 complete: bootstrap + DB + shared core completed.  
