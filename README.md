@@ -2,13 +2,22 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1.
 
-Last updated: 2026-03-15
+Last updated: 2026-03-16
 
 ## Current Status
 
-1. Phases A through D are completed.
+1. Phases A through E are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
+4. Flyway migrations and seed data are in place (`V1` to `V11`).
+
+## Phase E (DB) Snapshot
+
+1. Core tables created: `instrument`, `order_book`, `order_event`, `idempotency_key`, `risk_limit`.
+2. Schema hardening added: order query/event indexes and DB check constraints.
+3. Seed data added for instruments and baseline risk limits.
+4. Fresh DB reset and migration bootstrap is available via `./scripts/db-reset-local.ps1`.
+5. Roll-forward policy is documented in `docs/DB_CHANGE_POLICY.md`.
 
 ## Repository Layout
 
@@ -16,7 +25,7 @@ Last updated: 2026-03-15
 2. `shared/common` - Shared utilities and common types.
 3. `shared/contracts` - Shared contracts/enums.
 4. `docs` - PRD, architecture, setup guide, and task board.
-5. `scripts` - Build/test/run and local infra automation scripts.
+5. `scripts` - Build/test/run and local infra/DB automation scripts.
 6. `docker-compose.yml` - Local infrastructure (MySQL, Redis, Keycloak, optional Prometheus/Grafana).
 
 ## Prerequisites
@@ -62,6 +71,18 @@ Copy-Item .env.example .env
 ./scripts/dev-down.ps1 -ResetVolumes
 ```
 
+6. Reset local DB quickly (drop/recreate + migrate):
+
+```powershell
+./scripts/db-reset-local.ps1
+```
+
+7. Open local MySQL shell:
+
+```powershell
+./scripts/db-connect.ps1
+```
+
 Detailed setup: `docs/SETUP.md`.
 
 ## Build, Test, Run
@@ -71,7 +92,8 @@ Using wrapper directly:
 ```powershell
 ./mvnw.cmd clean verify
 ./mvnw.cmd test
-./mvnw.cmd -pl apps/oems-api -am spring-boot:run -Dspring-boot.run.profiles=local
+$env:SPRING_PROFILES_ACTIVE="local"
+./mvnw.cmd -f apps/oems-api/pom.xml spring-boot:run
 ```
 
 Using helper scripts:

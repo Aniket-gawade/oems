@@ -1,0 +1,13 @@
+CREATE TABLE instrument (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    symbol VARCHAR(32) NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    tradable BOOLEAN NOT NULL DEFAULT TRUE,
+    tick_size DECIMAL(18,8) NOT NULL,
+    min_qty DECIMAL(18,8) NOT NULL,
+    max_qty DECIMAL(18,8) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    CONSTRAINT uk_instrument_symbol UNIQUE (symbol)
+);

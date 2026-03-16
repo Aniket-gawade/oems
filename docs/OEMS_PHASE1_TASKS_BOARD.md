@@ -1,6 +1,6 @@
 # OEMS Phase 1 Tasks Board (Atomic, Start-to-End)
 
-Last updated: 2026-03-03
+Last updated: 2026-03-16
 
 ## How to use this board
 
@@ -190,64 +190,64 @@ Done when: build is green on clean checkout.
 
 ## Phase E - Database Schema and Migrations
 
-53. [ ] `T053` Create migration folder `db/migration`.  
+53. [x] `T053` Create migration folder `db/migration`.  
 Done when: Flyway detects folder.
 
-54. [ ] `T054` Create `V1__create_instrument_table.sql`.  
+54. [x] `T054` Create `V1__create_instrument_table.sql`.  
 Done when: table and core constraints exist.
 
-55. [ ] `T055` Create `V2__create_order_book_table.sql`.  
+55. [x] `T055` Create `V2__create_order_book_table.sql`.  
 Done when: order columns + status field exist.
 
-56. [ ] `T056` Create `V3__create_order_event_table.sql`.  
+56. [x] `T056` Create `V3__create_order_event_table.sql`.  
 Done when: event table references `order_book`.
 
-57. [ ] `T057` Create `V4__create_idempotency_key_table.sql`.  
+57. [x] `T057` Create `V4__create_idempotency_key_table.sql`.  
 Done when: unique key and response cache columns exist.
 
-58. [ ] `T058` Create `V5__create_risk_limit_table.sql`.  
+58. [x] `T058` Create `V5__create_risk_limit_table.sql`.  
 Done when: trader and symbol-specific risk limits exist.
 
-59. [ ] `T059` Add index migration for order query performance.  
+59. [x] `T059` Add index migration for order query performance.  
 Done when: index for `(trader_id, created_at)` exists.
 
-60. [ ] `T060` Add index migration for event retrieval by order id.  
+60. [x] `T060` Add index migration for event retrieval by order id.  
 Done when: order event lookup is index-backed.
 
-61. [ ] `T061` Add check constraints for side/orderType values.  
+61. [x] `T061` Add check constraints for side/orderType values.  
 Done when: invalid values cannot be inserted.
 
-62. [ ] `T062` Add check constraints for positive quantity and notional.  
+62. [x] `T062` Add check constraints for positive quantity and notional.  
 Done when: invalid numeric values are blocked.
 
-63. [ ] `T063` Create `V6__seed_instrument_data.sql` with test symbols.  
+63. [x] `T063` Create `V6__seed_instrument_data.sql` with test symbols.  
 Done when: app starts with tradable instruments available.
 
-64. [ ] `T064` Create `V7__seed_risk_limits.sql` with baseline limits.  
+64. [x] `T064` Create `V7__seed_risk_limits.sql` with baseline limits.  
 Done when: risk checks can run without manual DB inserts.
 
-65. [ ] `T065` Configure `spring.jpa.hibernate.ddl-auto=validate`.  
+65. [x] `T065` Configure `spring.jpa.hibernate.ddl-auto=validate`.  
 Done when: schema mismatch fails startup.
 
-66. [ ] `T066` Configure `spring.flyway.enabled=true`.  
+66. [x] `T066` Configure `spring.flyway.enabled=true`.  
 Done when: migration logs appear at startup.
 
-67. [ ] `T067` Configure migration baseline behavior for empty DB.  
+67. [x] `T067` Configure migration baseline behavior for empty DB.  
 Done when: fresh DB starts without manual steps.
 
-68. [ ] `T068` Add migration test that verifies all migrations apply in order.  
+68. [x] `T068` Add migration test that verifies all migrations apply in order.  
 Done when: test fails on broken SQL.
 
-69. [ ] `T069` Add rollback policy doc `docs/DB_CHANGE_POLICY.md`.  
+69. [x] `T069` Add rollback policy doc `docs/DB_CHANGE_POLICY.md`.  
 Done when: team knows roll-forward strategy.
 
-70. [ ] `T070` Add script `scripts/db-reset-local.ps1`.  
+70. [x] `T070` Add script `scripts/db-reset-local.ps1`.  
 Done when: one command recreates local DB state.
 
-71. [ ] `T071` Add script `scripts/db-connect.ps1` helper.  
+71. [x] `T071` Add script `scripts/db-connect.ps1` helper.  
 Done when: command opens mysql client for local DB quickly.
 
-72. [ ] `T072` Verify migrations on completely fresh containerized DB.  
+72. [x] `T072` Verify migrations on completely fresh containerized DB.  
 Done when: app boots and all tables are present.
 
 ---
