@@ -6,10 +6,11 @@ Last updated: 2026-03-16
 
 ## Current Status
 
-1. Phases A through E are completed.
+1. Phases A through F are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V1` to `V11`).
+5. Shared contracts/core types for Phase F are in place (enums, value objects, error model, architecture tests).
 
 ## Phase E (DB) Snapshot
 
@@ -118,3 +119,5 @@ When infrastructure is running:
 2. Product requirements: `docs/PHASE1_PRD.md`
 3. Setup guide: `docs/SETUP.md`
 4. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
+5. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
+6. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
