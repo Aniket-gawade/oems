@@ -253,58 +253,58 @@ Done when: app boots and all tables are present.
 ---
 ## Phase F - Shared Contracts and Core Domain Types
 
-73. [ ] `T073` Add enum `OrderType` (`MARKET`, `LIMIT`) in contracts module.  
+73. [x] `T073` Add enum `OrderType` (`MARKET`, `LIMIT`) in contracts module.  
 Done when: shared enum used by API + domain.
 
-74. [ ] `T074` Add enum `Side` (`BUY`, `SELL`) in contracts module.  
+74. [x] `T074` Add enum `Side` (`BUY`, `SELL`) in contracts module.  
 Done when: side is not represented as free string in code.
 
-75. [ ] `T075` Add enum `OrderStatus` (`NEW`, `REJECTED`) for Phase 1.  
+75. [x] `T075` Add enum `OrderStatus` (`NEW`, `REJECTED`) for Phase 1.  
 Done when: persisted status uses enum mapping.
 
-76. [ ] `T076` Add enum `RiskRejectCode` set in contracts module.  
+76. [x] `T076` Add enum `RiskRejectCode` set in contracts module.  
 Done when: risk responses use machine codes.
 
-77. [ ] `T077` Add `ApiError` class in `shared/common`.  
+77. [x] `T077` Add `ApiError` class in `shared/common`.  
 Done when: all APIs can return standardized error object.
 
-78. [ ] `T078` Add `ErrorCode` enum for global application errors.  
+78. [x] `T078` Add `ErrorCode` enum for global application errors.  
 Done when: centralized error catalog exists.
 
-79. [ ] `T079` Add `CorrelationContext` helper for trace id propagation.  
+79. [x] `T079` Add `CorrelationContext` helper for trace id propagation.  
 Done when: trace id can be set/get/clear per request.
 
-80. [ ] `T080` Add decimal precision utility for deterministic calculations.  
+80. [x] `T080` Add decimal precision utility for deterministic calculations.  
 Done when: calculations use deterministic scale/rounding.
 
-81. [ ] `T081` Add value object `Quantity` for positive quantity rules.  
+81. [x] `T081` Add value object `Quantity` for positive quantity rules.  
 Done when: negative/zero quantity blocked at constructor level.
 
-82. [ ] `T082` Add domain exception classes (`BusinessRuleViolation`, etc.).  
+82. [x] `T082` Add domain exception classes (`BusinessRuleViolation`, etc.).  
 Done when: business failures are distinct from technical failures.
 
-83. [ ] `T083` Add domain event type constants for order events.  
+83. [x] `T083` Add domain event type constants for order events.  
 Done when: event names are centralized.
 
-84. [ ] `T084` Add mapping utility for enum <-> DB string serialization.  
+84. [x] `T084` Add mapping utility for enum <-> DB string serialization.  
 Done when: conversion logic is unit-tested.
 
-85. [ ] `T085` Add contract versioning policy doc in `docs/CONTRACT_VERSIONING.md`.  
+85. [x] `T085` Add contract versioning policy doc in `docs/CONTRACT_VERSIONING.md`.  
 Done when: backward compatibility rules are explicit.
 
-86. [ ] `T086` Add unit tests for shared enums and value objects.  
+86. [x] `T086` Add unit tests for shared enums and value objects.  
 Done when: invalid inputs are rejected by tests.
 
-87. [ ] `T087` Add unit tests for decimal calculation utility.  
+87. [x] `T087` Add unit tests for decimal calculation utility.  
 Done when: expected scales/rounding are verified.
 
-88. [ ] `T088` Add package-level architecture test to enforce module boundaries.  
+88. [x] `T088` Add package-level architecture test to enforce module boundaries.  
 Done when: forbidden dependency usage fails test.
 
-89. [ ] `T089` Ensure shared modules have no Spring Boot runtime dependency leaks.  
+89. [x] `T089` Ensure shared modules have no Spring Boot runtime dependency leaks.  
 Done when: shared modules remain lightweight.
 
-90. [ ] `T090` Publish internal shared-module usage guide in docs.  
+90. [x] `T090` Publish internal shared-module usage guide in docs.  
 Done when: examples show how APIs consume shared contracts.
 
 ---
@@ -826,7 +826,7 @@ Done when: `docs/POST_RELEASE_PHASE1.md` is created.
 251. [x] `T251` Gate 1 complete: planning + setup + architecture docs done.  
 Depends on: `T001` to `T036`.
 
-252. [ ] `T252` Gate 2 complete: bootstrap + DB + shared core completed.  
+252. [x] `T252` Gate 2 complete: bootstrap + DB + shared core completed.  
 Depends on: `T037` to `T090`.
 
 253. [ ] `T253` Gate 3 complete: security + reference data + risk completed.  

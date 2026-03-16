@@ -1,12 +1,15 @@
 package com.project.oems.common.error;
 
 import java.time.Instant;
+import java.util.Map;
 
 public record ApiError(
-        String code,
+        ErrorCode code,
         String message,
         int status,
         String path,
-        Instant timestamp
+        Instant timestamp,
+        String traceId,
+        Map<String, Object> details
 ) {
 }
