@@ -1,6 +1,6 @@
 # OEMS Phase 1 Tasks Board (Atomic, Start-to-End)
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## How to use this board
 
@@ -311,64 +311,64 @@ Done when: examples show how APIs consume shared contracts.
 
 ## Phase G - Security and Identity
 
-91. [ ] `T091` Configure Keycloak realm `oems` manually (or import JSON).  
+91. [x] `T091` Configure Keycloak realm `oems` manually (or import JSON).  
 Done when: realm exists in local Keycloak.
 
-92. [ ] `T092` Configure Keycloak client `oems-api`.  
+92. [x] `T092` Configure Keycloak client `oems-api`.  
 Done when: client credentials and redirect config are valid.
 
-93. [ ] `T093` Create Keycloak roles `TRADER` and `OPS`.  
+93. [x] `T093` Create Keycloak roles `TRADER` and `OPS`.  
 Done when: both roles visible in realm role list.
 
-94. [ ] `T094` Create test user `trader1` with role `TRADER`.  
+94. [x] `T094` Create test user `trader1` with role `TRADER`.  
 Done when: token includes trader role claim.
 
-95. [ ] `T095` Create test user `ops1` with role `OPS`.  
+95. [x] `T095` Create test user `ops1` with role `OPS`.  
 Done when: token includes ops role claim.
 
-96. [ ] `T096` Add Keycloak realm-export file to repo for reproducibility.  
+96. [x] `T096` Add Keycloak realm-export file to repo for reproducibility.  
 Done when: local setup can import realm automatically.
 
-97. [ ] `T097` Configure Spring Security resource-server JWT properties.  
+97. [x] `T097` Configure Spring Security resource-server JWT properties.  
 Done when: app validates Keycloak-issued JWT.
 
-98. [ ] `T098` Create security config class with endpoint authorization rules.  
+98. [x] `T098` Create security config class with endpoint authorization rules.  
 Done when: order endpoints require `ROLE_TRADER`.
 
-99. [ ] `T099` Secure actuator endpoints to ops role or internal network.  
+99. [x] `T099` Secure actuator endpoints to ops role or internal network.  
 Done when: unauthorized users cannot access sensitive endpoints.
 
-100. [ ] `T100` Add CORS configuration for intended client origin(s).  
+100. [x] `T100` Add CORS configuration for intended client origin(s).  
 Done when: browser clients can call API without CORS failure.
 
-101. [ ] `T101` Add helper to extract `traderId` from JWT claims.  
+101. [x] `T101` Add helper to extract `traderId` from JWT claims.  
 Done when: application service receives resolved trader id.
 
-102. [ ] `T102` Add authentication failure handler with standardized `ApiError`.  
+102. [x] `T102` Add authentication failure handler with standardized `ApiError`.  
 Done when: `401` format matches global error schema.
 
-103. [ ] `T103` Add authorization failure handler with standardized `ApiError`.  
+103. [x] `T103` Add authorization failure handler with standardized `ApiError`.  
 Done when: `403` format matches global error schema.
 
-104. [ ] `T104` Add integration test for `401` without token.  
+104. [x] `T104` Add integration test for `401` without token.  
 Done when: test verifies status + body fields.
 
-105. [ ] `T105` Add integration test for `403` with wrong role.  
+105. [x] `T105` Add integration test for `403` with wrong role.  
 Done when: non-trader role cannot place orders.
 
-106. [ ] `T106` Add integration test for valid trader token.  
+106. [x] `T106` Add integration test for valid trader token.  
 Done when: authorized request reaches controller.
 
-107. [ ] `T107` Add security docs in `docs/SECURITY_PHASE1.md`.  
+107. [x] `T107` Add security docs in `docs/SECURITY_PHASE1.md`.  
 Done when: token flow and claims mapping documented.
 
-108. [ ] `T108` Add secrets policy (`never commit real credentials`).  
+108. [x] `T108` Add secrets policy (`never commit real credentials`).  
 Done when: docs + `.gitignore` enforce safe practice.
 
-109. [ ] `T109` Add optional local mock auth mode for faster API development tests.  
+109. [x] `T109` Add optional local mock auth mode for faster API development tests.  
 Done when: dedicated profile can bypass Keycloak in local dev only.
 
-110. [ ] `T110` Run security smoke test script for protected endpoints.  
+110. [x] `T110` Run security smoke test script for protected endpoints.  
 Done when: script passes all expected auth outcomes.
 
 ---

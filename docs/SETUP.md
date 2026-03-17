@@ -1,6 +1,6 @@
 # OEMS Local Setup
 
-Last updated: 2026-03-15
+Last updated: 2026-03-17
 
 ## 1. Prerequisites
 
@@ -52,10 +52,31 @@ With observability checks:
 1. MySQL: `localhost:${MYSQL_PORT}`
 2. Redis: `localhost:${REDIS_PORT}`
 3. Keycloak Admin Console: `http://localhost:${KEYCLOAK_PORT}/admin`
-4. Prometheus (optional): `http://localhost:${PROMETHEUS_PORT}`
-5. Grafana (optional): `http://localhost:${GRAFANA_PORT}`
+4. Keycloak Realm Well-Known Config: `http://localhost:${KEYCLOAK_PORT}/realms/oems/.well-known/openid-configuration`
+5. Prometheus (optional): `http://localhost:${PROMETHEUS_PORT}`
+6. Grafana (optional): `http://localhost:${GRAFANA_PORT}`
 
-## 6. Stop Infrastructure
+## 6. Keycloak Local Bootstrap Defaults
+
+The compose setup imports `ops/keycloak/oems-realm-export.json` automatically.
+
+Imported defaults:
+
+1. Realm: `oems`
+2. Client: `oems-api`
+3. Roles: `TRADER`, `OPS`
+4. Test users:
+   - `trader1` / `trader1pass` (`TRADER`)
+   - `ops1` / `ops1pass` (`OPS`)
+
+If the realm was previously created with different values, reset Keycloak volume:
+
+```powershell
+./scripts/dev-down.ps1 -ResetVolumes
+./scripts/dev-up.ps1
+```
+
+## 7. Stop Infrastructure
 
 Stop containers:
 
@@ -69,7 +90,23 @@ Stop and remove volumes (full local reset):
 ./scripts/dev-down.ps1 -ResetVolumes
 ```
 
-## 7. Troubleshooting
+## 8. Security Smoke Check
+
+Once infra is up and OEMS API is running locally on `http://localhost:8080`:
+
+```powershell
+./scripts/security-smoke.ps1
+```
+
+To let the smoke script start/stop the API automatically:
+
+```powershell
+./scripts/security-smoke.ps1 -StartApi
+```
+
+Note: `-StartApi` does not start MySQL/Redis/Keycloak. Run `./scripts/dev-up.ps1` first.
+
+## 9. Troubleshooting
 
 1. If `docker version` shows only client output, Docker engine is not ready yet.
 2. If ports are already in use, change values in `.env` and restart containers.

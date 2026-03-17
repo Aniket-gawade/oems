@@ -1,0 +1,82 @@
+{
+  "realm": "oems",
+  "enabled": true,
+  "displayName": "OEMS Local Realm",
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      {
+        "name": "TRADER",
+        "description": "Trader role for order placement and order retrieval."
+      },
+      {
+        "name": "OPS",
+        "description": "Operations role for protected actuator and operational endpoints."
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "oems-api",
+      "name": "OEMS API",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/*",
+        "http://localhost:5173/*",
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8080"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "+"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "trader1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "trader1@oems.local",
+      "firstName": "Trader",
+      "lastName": "One",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "trader1pass",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "TRADER"
+      ]
+    },
+    {
+      "username": "ops1",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "ops1@oems.local",
+      "firstName": "Ops",
+      "lastName": "One",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "ops1pass",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "OPS"
+      ]
+    }
+  ]
+}
