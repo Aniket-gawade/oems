@@ -2,15 +2,16 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1.
 
-Last updated: 2026-03-16
+Last updated: 2026-03-17
 
 ## Current Status
 
-1. Phases A through F are completed.
+1. Phases A through G are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V1` to `V11`).
 5. Shared contracts/core types for Phase F are in place (enums, value objects, error model, architecture tests).
+6. Security baseline is in place (Keycloak realm import, JWT validation, RBAC, auth handlers, and security integration tests).
 
 ## Phase E (DB) Snapshot
 
@@ -103,6 +104,9 @@ Using helper scripts:
 ./scripts/build.ps1
 ./scripts/test.ps1
 ./scripts/run-oems-api.ps1
+./scripts/run-oems-api.ps1 -MockAuth
+./scripts/security-smoke.ps1
+./scripts/security-smoke.ps1 -StartApi
 ```
 
 ## Local Endpoints
@@ -110,8 +114,9 @@ Using helper scripts:
 When infrastructure is running:
 
 1. Keycloak Admin: `http://localhost:8081/admin`
-2. Prometheus (optional): `http://localhost:9090`
-3. Grafana (optional): `http://localhost:3000`
+2. Keycloak OEMS realm OIDC config: `http://localhost:8081/realms/oems/.well-known/openid-configuration`
+3. Prometheus (optional): `http://localhost:9090`
+4. Grafana (optional): `http://localhost:3000`
 
 ## Planning and Documentation
 
@@ -121,3 +126,5 @@ When infrastructure is running:
 4. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
 5. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
 6. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
+7. Security guide: `docs/SECURITY_PHASE1.md`
+8. Secrets policy: `docs/SECRETS_POLICY.md`

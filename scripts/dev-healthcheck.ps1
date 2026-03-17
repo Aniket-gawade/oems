@@ -52,6 +52,7 @@ $config = Load-EnvFile $envFile
 $mysqlUser = Read-Config $config "MYSQL_USER" "oems_user"
 $mysqlPassword = Read-Config $config "MYSQL_PASSWORD" "oems_password"
 $keycloakPort = Read-Config $config "KEYCLOAK_PORT" "8081"
+$keycloakRealm = Read-Config $config "KEYCLOAK_REALM" "oems"
 $prometheusPort = Read-Config $config "PROMETHEUS_PORT" "9090"
 $grafanaPort = Read-Config $config "GRAFANA_PORT" "3000"
 
@@ -83,7 +84,7 @@ try {
         throw "Redis healthcheck failed."
     }
 
-    $keycloakUri = "http://localhost:$keycloakPort/realms/master/.well-known/openid-configuration"
+    $keycloakUri = "http://localhost:$keycloakPort/realms/$keycloakRealm/.well-known/openid-configuration"
     Invoke-WebRequest -Uri $keycloakUri -UseBasicParsing -TimeoutSec 10 | Out-Null
 
     if ($WithObservability) {

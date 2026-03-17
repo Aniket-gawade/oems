@@ -37,5 +37,8 @@ build/
 .env.local
 .env.*.local
 !.env.example
+ops/keycloak/*.local.json
+ops/keycloak/*-secrets.json
 *.log
 docker-data/
+.tmp/
