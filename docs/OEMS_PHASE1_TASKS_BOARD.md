@@ -433,71 +433,71 @@ Done when: docs include sample request/response.
 
 ## Phase I - Risk Module Implementation
 
-129. [ ] `T129` Create JPA entity `RiskLimitEntity`.  
+129. [x] `T129` Create JPA entity `RiskLimitEntity`.  
 Done when: entity maps trader/symbol limits.
 
-130. [ ] `T130` Create repository method for exact trader+symbol lookup.  
+130. [x] `T130` Create repository method for exact trader+symbol lookup.  
 Done when: method returns optional symbol-specific rule.
 
-131. [ ] `T131` Create repository method for trader default rule lookup.  
+131. [x] `T131` Create repository method for trader default rule lookup.  
 Done when: fallback rule query exists.
 
-132. [ ] `T132` Create domain model `RiskLimit`.  
+132. [x] `T132` Create domain model `RiskLimit`.  
 Done when: model stores maxQty/maxNotional/priceBandPct.
 
-133. [ ] `T133` Create risk result model (`PASS` or `FAIL`).  
+133. [x] `T133` Create risk result model (`PASS` or `FAIL`).  
 Done when: includes reject code + message.
 
-134. [ ] `T134` Implement `checkMaxQty` rule.  
+134. [x] `T134` Implement `checkMaxQty` rule.  
 Done when: qty above limit returns failure code.
 
-135. [ ] `T135` Implement `checkMaxNotional` rule.  
+135. [x] `T135` Implement `checkMaxNotional` rule.  
 Done when: notional above limit returns failure code.
 
-136. [ ] `T136` Implement `checkPriceBand` rule.  
+136. [x] `T136` Implement `checkPriceBand` rule.  
 Done when: outside band returns failure code.
 
-137. [ ] `T137` Implement rule execution order and fail-fast behavior.  
+137. [x] `T137` Implement rule execution order and fail-fast behavior.  
 Done when: first failing rule is deterministically returned.
 
-138. [ ] `T138` Implement rounding/precision policy in risk calculations.  
+138. [x] `T138` Implement rounding/precision policy in risk calculations.  
 Done when: BigDecimal scale is fixed and tested.
 
-139. [ ] `T139` Create `RiskCheckService#evaluate(orderDraft, instrument, trader)`.  
+139. [x] `T139` Create `RiskCheckService#evaluate(orderDraft, instrument, trader)`.  
 Done when: service returns pass/fail object.
 
-140. [ ] `T140` Add unit tests for max quantity edge cases.  
+140. [x] `T140` Add unit tests for max quantity edge cases.  
 Done when: equal-to-limit and just-above-limit are tested.
 
 ---
-141. [ ] `T141` Add unit tests for max notional edge cases.  
+141. [x] `T141` Add unit tests for max notional edge cases.  
 Done when: decimal precision cases are tested.
 
-142. [ ] `T142` Add unit tests for price-band rule edge cases.  
+142. [x] `T142` Add unit tests for price-band rule edge cases.  
 Done when: lower and upper boundary behavior is tested.
 
-143. [ ] `T143` Add integration test with seeded risk limits.  
+143. [x] `T143` Add integration test with seeded risk limits.  
 Done when: API-driven flow triggers expected risk outcomes.
 
-144. [ ] `T144` Add risk reject message catalog in `docs/RISK_CODES.md`.  
+144. [x] `T144` Add risk reject message catalog in `docs/RISK_CODES.md`.  
 Done when: each reject code has meaning and operator action.
 
-145. [ ] `T145` Add fallback behavior when no risk profile found.  
+145. [x] `T145` Add fallback behavior when no risk profile found.  
 Done when: default policy is explicit and tested.
 
-146. [ ] `T146` Add metrics counter per risk reject code.  
+146. [x] `T146` Add metrics counter per risk reject code.  
 Done when: each rejection increments labeled metric.
 
-147. [ ] `T147` Add structured audit payload section for risk results.  
+147. [x] `T147` Add structured audit payload section for risk results.  
 Done when: reject reason appears in persisted event payload.
 
-148. [ ] `T148` Add API mapping for risk failure status code.  
+148. [x] `T148` Add API mapping for risk failure status code.  
 Done when: chosen status is consistently returned.
 
-149. [ ] `T149` Add negative test for missing/invalid price in LIMIT order.  
+149. [x] `T149` Add negative test for missing/invalid price in LIMIT order.  
 Done when: proper validation/risk path verified.
 
-150. [ ] `T150` Add positive test for MARKET order without price.  
+150. [x] `T150` Add positive test for MARKET order without price.  
 Done when: request accepted when other checks pass.
 
 ---
@@ -829,7 +829,7 @@ Depends on: `T001` to `T036`.
 252. [x] `T252` Gate 2 complete: bootstrap + DB + shared core completed.  
 Depends on: `T037` to `T090`.
 
-253. [ ] `T253` Gate 3 complete: security + reference data + risk completed.  
+253. [x] `T253` Gate 3 complete: security + reference data + risk completed.  
 Depends on: `T091` to `T150`.
 
 254. [ ] `T254` Gate 4 complete: order placement + idempotency completed.  

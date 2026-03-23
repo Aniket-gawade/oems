@@ -60,6 +60,16 @@ class SecurityIntegrationTest {
     @Test
     void postOrdersWithTraderRoleReachesController() throws Exception {
         mockMvc.perform(post("/v1/orders")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "sec-1001",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "MARKET",
+                                  "quantity": 10
+                                }
+                                """)
                         .with(SecurityMockMvcRequestPostProcessors.jwt()
                                 .jwt(jwt -> jwt
                                         .issuedAt(Instant.now())
@@ -69,9 +79,12 @@ class SecurityIntegrationTest {
                                         .claim("aud", List.of("oems-api"))
                                         .claim("realm_access", Map.of("roles", List.of("TRADER"))))
                                 .authorities(new SimpleGrantedAuthority("ROLE_TRADER"))))
-                .andExpect(status().isAccepted())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("NEW"))
-                .andExpect(jsonPath("$.traderId").value("trader1"))
-                .andExpect(jsonPath("$.orderId").isString());
+                .andExpect(jsonPath("$.symbol").value("AAPL"))
+                .andExpect(jsonPath("$.orderType").value("MARKET"))
+                .andExpect(jsonPath("$.quantity").value(10))
+                .andExpect(jsonPath("$.orderId").isString())
+                .andExpect(jsonPath("$.createdAt").isString());
     }
 }
