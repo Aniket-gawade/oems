@@ -36,6 +36,16 @@ errorCodes:
     httpStatus: 422
     retriable: false
     description: Instrument exists but is marked non-tradable.
+  - code: INSTRUMENT_QTY_OUT_OF_RANGE
+    category: REFERENCE_DATA
+    httpStatus: 422
+    retriable: false
+    description: Quantity is outside instrument-configured min/max range.
+  - code: INSTRUMENT_TICK_SIZE_VIOLATION
+    category: REFERENCE_DATA
+    httpStatus: 422
+    retriable: false
+    description: Limit price is not aligned to instrument tick size.
   - code: RISK_MAX_QTY_EXCEEDED
     category: RISK
     httpStatus: 422
