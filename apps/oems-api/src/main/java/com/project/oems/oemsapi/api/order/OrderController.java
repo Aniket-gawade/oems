@@ -1,15 +1,14 @@
 package com.project.oems.oemsapi.api.order;
 
 import com.project.oems.common.domain.exception.BusinessRuleViolation;
-import com.project.oems.common.error.ErrorCode;
+import com.project.oems.common.web.CorrelationContext;
 import com.project.oems.contracts.order.OrderStatus;
-import com.project.oems.contracts.risk.RiskRejectCode;
-import com.project.oems.oemsapi.application.refdata.InstrumentService;
-import com.project.oems.oemsapi.application.risk.RiskCheckService;
+import com.project.oems.oemsapi.application.order.OrderApplicationService;
+import com.project.oems.oemsapi.application.order.OrderPlacementResult;
 import com.project.oems.oemsapi.application.security.TraderIdExtractor;
 import com.project.oems.oemsapi.domain.order.OrderDraft;
-import com.project.oems.oemsapi.domain.refdata.Instrument;
-import com.project.oems.oemsapi.domain.risk.RiskCheckResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,24 +20,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/orders")
 public class OrderController {
 
+    private static final Logger log = LoggerFactory.getLogger(OrderController.class);
+
     private final TraderIdExtractor traderIdExtractor;
-    private final InstrumentService instrumentService;
-    private final RiskCheckService riskCheckService;
+    private final OrderApplicationService orderApplicationService;
 
     public OrderController(TraderIdExtractor traderIdExtractor,
-                           InstrumentService instrumentService,
-                           RiskCheckService riskCheckService) {
+                           OrderApplicationService orderApplicationService) {
         this.traderIdExtractor = traderIdExtractor;
-        this.instrumentService = instrumentService;
-        this.riskCheckService = riskCheckService;
+        this.orderApplicationService = orderApplicationService;
     }
 
     @PostMapping
@@ -46,27 +42,30 @@ public class OrderController {
                                                          Authentication authentication) {
         String traderId = traderIdExtractor.extract(authentication);
         OrderDraft orderDraft = request.toDraft(traderId);
+        String traceId = CorrelationContext.getTraceId();
 
-        Instrument instrument = instrumentService.validateTradable(
-                orderDraft.symbol(),
-                orderDraft.quantity(),
-                orderDraft.price()
-        );
+        log.info("placeOrder request received traderId={} clientOrderId={} symbol={} orderType={} traceId={}",
+                traderId, orderDraft.clientOrderId(), orderDraft.symbol(), orderDraft.orderType(), traceId);
 
-        RiskCheckResult riskResult = riskCheckService.evaluate(orderDraft, instrument, traderId);
-        if (riskResult.isFail()) {
-            throw new BusinessRuleViolation(toErrorCode(riskResult.rejectCode()), riskResult.message());
+        OrderPlacementResult result = orderApplicationService.placeOrder(orderDraft);
+        if (result.isRejected()) {
+            log.info("placeOrder rejected orderId={} code={} traceId={}",
+                    result.order().id(), result.rejectionErrorCode(), traceId);
+            throw new BusinessRuleViolation(result.rejectionErrorCode(), result.rejectionMessage());
         }
 
+        log.info("placeOrder accepted orderId={} status={} traceId={}",
+                result.order().id(), result.order().status(), traceId);
+
         PlaceOrderResponse response = new PlaceOrderResponse(
-                UUID.randomUUID(),
+                result.order().id(),
                 OrderStatus.NEW,
-                orderDraft.symbol(),
-                orderDraft.side(),
-                orderDraft.orderType(),
-                orderDraft.quantity(),
-                orderDraft.price(),
-                Instant.now()
+                result.order().symbol(),
+                result.order().side(),
+                result.order().orderType(),
+                result.order().quantity(),
+                result.order().price(),
+                result.order().createdAt()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -81,13 +80,5 @@ public class OrderController {
                 "traderId", traderId
         );
         return ResponseEntity.ok(body);
-    }
-
-    private ErrorCode toErrorCode(RiskRejectCode rejectCode) {
-        return switch (rejectCode) {
-            case RISK_MAX_QTY_EXCEEDED -> ErrorCode.RISK_MAX_QTY_EXCEEDED;
-            case RISK_MAX_NOTIONAL_EXCEEDED -> ErrorCode.RISK_MAX_NOTIONAL_EXCEEDED;
-            case RISK_PRICE_BAND_EXCEEDED -> ErrorCode.RISK_PRICE_BAND_EXCEEDED;
-        };
     }
 }

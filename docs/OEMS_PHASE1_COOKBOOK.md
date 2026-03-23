@@ -831,6 +831,51 @@ Pseudo-flow:
 3. Keep persistence in single DB transaction.
 4. Map business errors to consistent `ApiError`.
 
+### Endpoint usage snippet
+
+```bash
+curl -i \
+  -X POST "http://localhost:8080/v1/orders" \
+  -H "Authorization: Bearer <access-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "clientOrderId": "lim-2001",
+    "symbol": "AAPL",
+    "side": "BUY",
+    "orderType": "LIMIT",
+    "quantity": 10,
+    "price": 200.00
+  }'
+```
+
+Expected `201` response:
+
+```json
+{
+  "orderId": "79cbf4a6-ee67-4bf5-9985-a8a425d1b77b",
+  "status": "NEW",
+  "symbol": "AAPL",
+  "side": "BUY",
+  "orderType": "LIMIT",
+  "quantity": 10.00000000,
+  "price": 200.00000000,
+  "createdAt": "2026-03-23T10:46:30.000Z"
+}
+```
+
+Risk rejection example (`422`):
+
+```json
+{
+  "code": "RISK_MAX_QTY_EXCEEDED",
+  "message": "Order quantity exceeds configured risk limit.",
+  "status": 422,
+  "path": "/v1/orders",
+  "timestamp": "2026-03-23T10:46:30.000Z",
+  "traceId": "c93c5a87-1353-407d-a47d-fae42567972a"
+}
+```
+
 ### Deliverables
 
 - Working order placement endpoint with rejection handling

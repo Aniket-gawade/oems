@@ -221,7 +221,7 @@ class RiskCheckServiceTest {
                              OrderType orderType,
                              BigDecimal quantity,
                              BigDecimal price) {
-        return new OrderDraft(traderId, symbol, Side.BUY, orderType, quantity, price);
+        return new OrderDraft("test-coid", traderId, symbol, Side.BUY, orderType, quantity, price);
     }
 
     private Instrument instrument(String symbol) {
