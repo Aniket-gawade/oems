@@ -2,16 +2,18 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1.
 
-Last updated: 2026-03-17
+Last updated: 2026-03-23
 
 ## Current Status
 
-1. Phases A through G are completed.
+1. Phases A through I are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
-4. Flyway migrations and seed data are in place (`V1` to `V11`).
+4. Flyway migrations and seed data are in place (`V1` to `V13`).
 5. Shared contracts/core types for Phase F are in place (enums, value objects, error model, architecture tests).
 6. Security baseline is in place (Keycloak realm import, JWT validation, RBAC, auth handlers, and security integration tests).
+7. Reference-data module is implemented (`GET /v1/instruments/{symbol}` + tradable/qty/tick validations).
+8. Risk module is implemented (risk-limit lookup with fallback, fail-fast risk checks, reject metrics, and persisted risk audit payloads).
 
 ## Phase E (DB) Snapshot
 
@@ -20,6 +22,16 @@ Last updated: 2026-03-17
 3. Seed data added for instruments and baseline risk limits.
 4. Fresh DB reset and migration bootstrap is available via `./scripts/db-reset-local.ps1`.
 5. Roll-forward policy is documented in `docs/DB_CHANGE_POLICY.md`.
+
+## Phase I (Risk) Snapshot
+
+1. `risk_limit` is queried with exact (`trader+symbol`) then trader-default fallback.
+2. Risk rules implemented with deterministic fail-fast order: max qty, max notional, price band.
+3. Rounding/precision is fixed with scale-8 decimal math in risk calculations.
+4. API-driven risk checks are wired to `POST /v1/orders`.
+5. Rejections map to `422` with standardized `ApiError` codes.
+6. Rejection metrics are emitted via `oems.risk.reject.total{rejectCode=...}`.
+7. Structured risk audit payloads are persisted in `risk_audit_event`.
 
 ## Repository Layout
 
@@ -128,3 +140,4 @@ When infrastructure is running:
 6. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
 7. Security guide: `docs/SECURITY_PHASE1.md`
 8. Secrets policy: `docs/SECRETS_POLICY.md`
+9. Risk reject catalog: `docs/RISK_CODES.md`
