@@ -729,6 +729,29 @@ Create trusted instrument validation source for order placement.
    - `GET /v1/instruments/{symbol}`
 5. Seed initial instruments via migration `V3__seed_instruments.sql`.
 
+### Endpoint usage snippet
+
+```bash
+curl -i \
+  -H "Authorization: Bearer <access-token>" \
+  http://localhost:8080/v1/instruments/AAPL
+```
+
+Expected `200` response:
+
+```json
+{
+  "symbol": "AAPL",
+  "name": "Apple Inc.",
+  "tradable": true,
+  "tickSize": 0.01,
+  "minQty": 1.00000000,
+  "maxQty": 100000.00000000
+}
+```
+
+Unknown symbol (`/v1/instruments/UNKNOWN`) should return `404` with `code=INSTRUMENT_NOT_FOUND`.
+
 ### Deliverables
 
 - Instrument lookup API + validation service

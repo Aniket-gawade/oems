@@ -375,58 +375,58 @@ Done when: script passes all expected auth outcomes.
 
 ## Phase H - Reference Data Module Implementation
 
-111. [ ] `T111` Create JPA entity `InstrumentEntity`.  
+111. [x] `T111` Create JPA entity `InstrumentEntity`.  
 Done when: entity maps all instrument table columns.
 
-112. [ ] `T112` Create repository interface for instrument queries.  
+112. [x] `T112` Create repository interface for instrument queries.  
 Done when: `findBySymbol` exists.
 
-113. [ ] `T113` Create domain model `Instrument`.  
+113. [x] `T113` Create domain model `Instrument`.  
 Done when: domain object independent of JPA annotations.
 
-114. [ ] `T114` Create mapper between entity and domain model.  
+114. [x] `T114` Create mapper between entity and domain model.  
 Done when: conversion is unit-tested.
 
-115. [ ] `T115` Create `InstrumentService#getBySymbol`.  
+115. [x] `T115` Create `InstrumentService#getBySymbol`.  
 Done when: returns domain object or not-found error.
 
-116. [ ] `T116` Create `InstrumentService#validateTradable`.  
+116. [x] `T116` Create `InstrumentService#validateTradable`.  
 Done when: checks symbol existence and tradable flag.
 
-117. [ ] `T117` Add validation for quantity against instrument min/max.  
+117. [x] `T117` Add validation for quantity against instrument min/max.  
 Done when: out-of-range quantity fails with business code.
 
-118. [ ] `T118` Add validation for price tick-size compliance.  
+118. [x] `T118` Add validation for price tick-size compliance.  
 Done when: off-tick price is rejected.
 
-119. [ ] `T119` Create API DTO for instrument response.  
+119. [x] `T119` Create API DTO for instrument response.  
 Done when: response contract matches OpenAPI.
 
-120. [ ] `T120` Create `GET /v1/instruments/{symbol}` controller endpoint.  
+120. [x] `T120` Create `GET /v1/instruments/{symbol}` controller endpoint.  
 Done when: endpoint returns 200 for valid symbol.
 
-121. [ ] `T121` Add not-found handling for unknown symbol in controller.  
+121. [x] `T121` Add not-found handling for unknown symbol in controller.  
 Done when: endpoint returns standardized `404`.
 
-122. [ ] `T122` Add controller integration test for known symbol.  
+122. [x] `T122` Add controller integration test for known symbol.  
 Done when: JSON fields match expected values.
 
-123. [ ] `T123` Add controller integration test for unknown symbol.  
+123. [x] `T123` Add controller integration test for unknown symbol.  
 Done when: `404` and error code verified.
 
-124. [ ] `T124` Add unit tests for tradable validation logic.  
+124. [x] `T124` Add unit tests for tradable validation logic.  
 Done when: tradable false case is covered.
 
-125. [ ] `T125` Add unit tests for tick-size and qty-range checks.  
+125. [x] `T125` Add unit tests for tick-size and qty-range checks.  
 Done when: edge values pass/fail correctly.
 
-126. [ ] `T126` Add seed migration update for at least 5 instruments.  
+126. [x] `T126` Add seed migration update for at least 5 instruments.  
 Done when: local API can query multiple symbols.
 
-127. [ ] `T127` Add endpoint-level security rule for instrument read.  
+127. [x] `T127` Add endpoint-level security rule for instrument read.  
 Done when: only authenticated users can read instrument.
 
-128. [ ] `T128` Add API docs snippet for instrument endpoint usage.  
+128. [x] `T128` Add API docs snippet for instrument endpoint usage.  
 Done when: docs include sample request/response.
 
 ---

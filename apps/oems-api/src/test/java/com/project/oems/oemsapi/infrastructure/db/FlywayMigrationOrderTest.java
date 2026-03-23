@@ -24,7 +24,7 @@ class FlywayMigrationOrderTest {
             .load();
 
         MigrateResult result = flyway.migrate();
-        assertThat(result.migrationsExecuted).isEqualTo(12);
+        assertThat(result.migrationsExecuted).isEqualTo(13);
 
         List<String> appliedVersions = Arrays.stream(flyway.info().applied())
             .filter(migration -> migration.getVersion() != null)
@@ -32,7 +32,7 @@ class FlywayMigrationOrderTest {
             .toList();
 
         assertThat(appliedVersions).containsExactly(
-            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"
+            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"
         );
     }
 }
