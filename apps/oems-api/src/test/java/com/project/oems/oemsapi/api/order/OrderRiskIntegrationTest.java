@@ -1,5 +1,6 @@
 package com.project.oems.oemsapi.api.order;
 
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,7 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +34,54 @@ class OrderRiskIntegrationTest {
     private JdbcTemplate jdbcTemplate;
 
     @Test
-    void marketOrderWithoutPriceIsAcceptedWhenChecksPass() throws Exception {
-        mockMvc.perform(post("/v1/orders")
+    void successfulLimitOrderPersistsOrderAndEvents() throws Exception {
+        String response = mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientOrderId": "mk-1001",
+                                  "clientOrderId": "lim-2001",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("NEW"))
+                .andExpect(jsonPath("$.symbol").value("AAPL"))
+                .andExpect(jsonPath("$.orderType").value("LIMIT"))
+                .andExpect(jsonPath("$.price").value(200.00))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String orderId = JsonPath.read(response, "$.orderId");
+        String status = jdbcTemplate.queryForObject(
+                "SELECT status FROM order_book WHERE id = ?",
+                String.class,
+                orderId
+        );
+        String traderId = jdbcTemplate.queryForObject(
+                "SELECT trader_id FROM order_book WHERE id = ?",
+                String.class,
+                orderId
+        );
+
+        assertThat(status).isEqualTo("NEW");
+        assertThat(traderId).isEqualTo("trader1");
+        assertEvents(orderId, List.of("ORDER_RECEIVED", "ORDER_ACCEPTED"));
+    }
+
+    @Test
+    void successfulMarketOrderWithoutPriceIsAccepted() throws Exception {
+        String response = mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "mk-2002",
                                   "symbol": "AAPL",
                                   "side": "BUY",
                                   "orderType": "MARKET",
@@ -49,7 +92,19 @@ class OrderRiskIntegrationTest {
                 .andExpect(jsonPath("$.status").value("NEW"))
                 .andExpect(jsonPath("$.symbol").value("AAPL"))
                 .andExpect(jsonPath("$.orderType").value("MARKET"))
-                .andExpect(jsonPath("$.price").isEmpty());
+                .andExpect(jsonPath("$.price").isEmpty())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String orderId = JsonPath.read(response, "$.orderId");
+        BigDecimal notional = jdbcTemplate.queryForObject(
+                "SELECT notional FROM order_book WHERE id = ?",
+                BigDecimal.class,
+                orderId
+        );
+        assertThat(notional).isGreaterThan(BigDecimal.ZERO);
+        assertEvents(orderId, List.of("ORDER_RECEIVED", "ORDER_ACCEPTED"));
     }
 
     @Test
@@ -73,33 +128,33 @@ class OrderRiskIntegrationTest {
     }
 
     @Test
-    void limitOrderOffTickPriceFollowsRiskValidationPath() throws Exception {
+    void instrumentNotFoundReturns404() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientOrderId": "lim-1002",
-                                  "symbol": "AAPL",
+                                  "clientOrderId": "ins-2003",
+                                  "symbol": "UNKNOWN",
                                   "side": "BUY",
                                   "orderType": "LIMIT",
                                   "quantity": 10,
-                                  "price": 200.005
+                                  "price": 200.00
                                 }
                                 """))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$.code").value("INSTRUMENT_TICK_SIZE_VIOLATION"))
-                .andExpect(jsonPath("$.status").value(422));
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("INSTRUMENT_NOT_FOUND"))
+                .andExpect(jsonPath("$.status").value(404));
     }
 
     @Test
-    void seededRiskLimitRejectsQtyAndPersistsAuditPayload() throws Exception {
+    void riskMaxQtyRejectionPersistsRejectedOrderAndEvents() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
-                                  "clientOrderId": "risk-1001",
+                                  "clientOrderId": "risk-2004",
                                   "symbol": "AAPL",
                                   "side": "BUY",
                                   "orderType": "LIMIT",
@@ -111,6 +166,21 @@ class OrderRiskIntegrationTest {
                 .andExpect(jsonPath("$.code").value("RISK_MAX_QTY_EXCEEDED"))
                 .andExpect(jsonPath("$.status").value(422));
 
+        String orderId = jdbcTemplate.queryForObject(
+                "SELECT id FROM order_book WHERE client_order_id = ?",
+                String.class,
+                "risk-2004"
+        );
+        String status = jdbcTemplate.queryForObject(
+                "SELECT status FROM order_book WHERE id = ?",
+                String.class,
+                orderId
+        );
+        String rejectionReason = jdbcTemplate.queryForObject(
+                "SELECT rejection_reason FROM order_book WHERE id = ?",
+                String.class,
+                orderId
+        );
         String rejectCode = jdbcTemplate.queryForObject(
                 "SELECT reject_code FROM risk_audit_event ORDER BY id DESC LIMIT 1",
                 String.class
@@ -120,9 +190,97 @@ class OrderRiskIntegrationTest {
                 String.class
         );
 
+        assertThat(status).isEqualTo("REJECTED");
+        assertThat(rejectionReason).isEqualTo("RISK_MAX_QTY_EXCEEDED");
         assertThat(rejectCode).isEqualTo("RISK_MAX_QTY_EXCEEDED");
         assertThat(payload).contains("\"rejectCode\":\"RISK_MAX_QTY_EXCEEDED\"");
         assertThat(payload).contains("\"riskLimitSource\":\"trader-symbol\"");
+        assertEvents(orderId, List.of("ORDER_RECEIVED", "ORDER_REJECTED"));
+    }
+
+    @Test
+    void riskMaxNotionalRejectionReturnsExpectedCode() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "risk-2005",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 5000,
+                                  "price": 210.00
+                                }
+                                """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("RISK_MAX_NOTIONAL_EXCEEDED"))
+                .andExpect(jsonPath("$.status").value(422));
+    }
+
+    @Test
+    void riskPriceBandRejectionReturnsExpectedCode() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "risk-2006",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 210.01
+                                }
+                                """))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("RISK_PRICE_BAND_EXCEEDED"))
+                .andExpect(jsonPath("$.status").value(422));
+    }
+
+    @Test
+    void everyOrderAttemptPersistsReceivedAndTerminalEvent() throws Exception {
+        String acceptedResponse = mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "evt-2007",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        String acceptedOrderId = JsonPath.read(acceptedResponse, "$.orderId");
+        assertEvents(acceptedOrderId, List.of("ORDER_RECEIVED", "ORDER_ACCEPTED"));
+
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "evt-2008",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 5001,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isUnprocessableEntity());
+
+        String rejectedOrderId = jdbcTemplate.queryForObject(
+                "SELECT id FROM order_book WHERE client_order_id = ?",
+                String.class,
+                "evt-2008"
+        );
+        assertEvents(rejectedOrderId, List.of("ORDER_RECEIVED", "ORDER_REJECTED"));
     }
 
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor traderJwt() {
@@ -135,5 +293,14 @@ class OrderRiskIntegrationTest {
                         .claim("aud", List.of("oems-api"))
                         .claim("realm_access", Map.of("roles", List.of("TRADER"))))
                 .authorities(new SimpleGrantedAuthority("ROLE_TRADER"));
+    }
+
+    private void assertEvents(String orderId, List<String> expectedTypes) {
+        List<String> events = jdbcTemplate.query(
+                "SELECT event_type FROM order_event WHERE order_id = ? ORDER BY id ASC",
+                (rs, rowNum) -> rs.getString("event_type"),
+                orderId
+        );
+        assertThat(events).containsExactlyElementsOf(expectedTypes);
     }
 }

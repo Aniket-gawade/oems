@@ -6,14 +6,15 @@ Last updated: 2026-03-23
 
 ## Current Status
 
-1. Phases A through I are completed.
+1. Phases A through J are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
-4. Flyway migrations and seed data are in place (`V1` to `V13`).
+4. Flyway migrations and seed data are in place (`V0` to `V13`).
 5. Shared contracts/core types for Phase F are in place (enums, value objects, error model, architecture tests).
 6. Security baseline is in place (Keycloak realm import, JWT validation, RBAC, auth handlers, and security integration tests).
 7. Reference-data module is implemented (`GET /v1/instruments/{symbol}` + tradable/qty/tick validations).
 8. Risk module is implemented (risk-limit lookup with fallback, fail-fast risk checks, reject metrics, and persisted risk audit payloads).
+9. Order placement core flow is implemented (`POST /v1/orders` with instrument+risk validation, transactional order/event persistence, and integration coverage for success/reject scenarios).
 
 ## Phase E (DB) Snapshot
 
@@ -32,6 +33,16 @@ Last updated: 2026-03-23
 5. Rejections map to `422` with standardized `ApiError` codes.
 6. Rejection metrics are emitted via `oems.risk.reject.total{rejectCode=...}`.
 7. Structured risk audit payloads are persisted in `risk_audit_event`.
+
+## Phase J (Order Placement) Snapshot
+
+1. `POST /v1/orders` is wired end-to-end through `OrderApplicationService`.
+2. Request/domain invariants enforce correct `MARKET` vs `LIMIT` rules and mandatory fields.
+3. Notional calculation policy is implemented and unit tested for both order types.
+4. Orders are persisted in `order_book` with terminal status (`NEW` or `REJECTED`).
+5. Event trail is persisted in `order_event` with `ORDER_RECEIVED` and terminal event.
+6. Place-order path executes in a single transaction for order + events.
+7. Integration tests cover: successful `LIMIT`, successful `MARKET`, instrument-not-found, and all risk rejection variants.
 
 ## Repository Layout
 

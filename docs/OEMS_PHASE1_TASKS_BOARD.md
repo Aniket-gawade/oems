@@ -504,94 +504,94 @@ Done when: request accepted when other checks pass.
 
 ## Phase J - Order Placement API (Core Flow)
 
-151. [ ] `T151` Create order request DTO per OpenAPI schema.  
+151. [x] `T151` Create order request DTO per OpenAPI schema.  
 Done when: DTO includes Bean Validation annotations.
 
-152. [ ] `T152` Create order response DTO per OpenAPI schema.  
+152. [x] `T152` Create order response DTO per OpenAPI schema.  
 Done when: response object includes required fields.
 
-153. [ ] `T153` Create JPA entity `OrderEntity` mapping `order_book`.  
+153. [x] `T153` Create JPA entity `OrderEntity` mapping `order_book`.  
 Done when: all DB columns are mapped.
 
-154. [ ] `T154` Create JPA entity `OrderEventEntity` mapping `order_event`.  
+154. [x] `T154` Create JPA entity `OrderEventEntity` mapping `order_event`.  
 Done when: entity supports JSON payload storage.
 
-155. [ ] `T155` Create order repository with `findById`.  
+155. [x] `T155` Create order repository with `findById`.  
 Done when: repository returns order by UUID.
 
-156. [ ] `T156` Create order event repository with `findByOrderId`.  
+156. [x] `T156` Create order event repository with `findByOrderId`.  
 Done when: events can be retrieved by order id.
 
-157. [ ] `T157` Create domain model `OrderDraft` for pre-persistence validation.  
+157. [x] `T157` Create domain model `OrderDraft` for pre-persistence validation.  
 Done when: draft construction validates mandatory invariants.
 
-158. [ ] `T158` Create domain model `Order` for persisted state.  
+158. [x] `T158` Create domain model `Order` for persisted state.  
 Done when: status, timestamps, and version are present.
 
-159. [ ] `T159` Implement notional calculation utility.  
+159. [x] `T159` Implement notional calculation utility.  
 Done when: LIMIT and MARKET notional policy is coded and tested.
 
-160. [ ] `T160` Create `OrderApplicationService#placeOrder`.  
+160. [x] `T160` Create `OrderApplicationService#placeOrder`.  
 Done when: method orchestrates validate -> risk -> persist path.
 
-161. [ ] `T161` Add transaction boundary for place-order service method.  
+161. [x] `T161` Add transaction boundary for place-order service method.  
 Done when: order and event persist atomically.
 
-162. [ ] `T162` Validate request field combinations (MARKET vs LIMIT price rules).  
+162. [x] `T162` Validate request field combinations (MARKET vs LIMIT price rules).  
 Done when: invalid combinations return validation error.
 
-163. [ ] `T163` Wire instrument validation inside place-order flow.  
+163. [x] `T163` Wire instrument validation inside place-order flow.  
 Done when: unknown/non-tradable symbols are rejected.
 
-164. [ ] `T164` Wire risk validation inside place-order flow.  
+164. [x] `T164` Wire risk validation inside place-order flow.  
 Done when: risk-failed orders are rejected with codes.
 
-165. [ ] `T165` Persist accepted order with `NEW` status.  
+165. [x] `T165` Persist accepted order with `NEW` status.  
 Done when: DB row created for accepted order.
 
-166. [ ] `T166` Persist rejected order with `REJECTED` status and reason.  
+166. [x] `T166` Persist rejected order with `REJECTED` status and reason.  
 Done when: DB row stores rejection metadata.
 
-167. [ ] `T167` Persist `ORDER_RECEIVED` event before decision.  
+167. [x] `T167` Persist `ORDER_RECEIVED` event before decision.  
 Done when: every request has initial audit event.
 
-168. [ ] `T168` Persist `ORDER_ACCEPTED` event for accepted orders.  
+168. [x] `T168` Persist `ORDER_ACCEPTED` event for accepted orders.  
 Done when: accepted orders have acceptance event row.
 
-169. [ ] `T169` Persist `ORDER_REJECTED` event for rejected orders.  
+169. [x] `T169` Persist `ORDER_REJECTED` event for rejected orders.  
 Done when: rejected orders have rejection event row.
 
-170. [ ] `T170` Create controller `POST /v1/orders`.  
+170. [x] `T170` Create controller `POST /v1/orders`.  
 Done when: endpoint accepts and returns contract-compliant JSON.
 
-171. [ ] `T171` Add authentication principal -> trader id mapping in controller/service.  
+171. [x] `T171` Add authentication principal -> trader id mapping in controller/service.  
 Done when: order row contains trader id from token claim.
 
-172. [ ] `T172` Add request/response logging for order endpoint (without secrets).  
+172. [x] `T172` Add request/response logging for order endpoint (without secrets).  
 Done when: logs include order id and trace id.
 
-173. [ ] `T173` Add integration test for successful LIMIT order.  
+173. [x] `T173` Add integration test for successful LIMIT order.  
 Done when: returns 201 and DB rows are persisted.
 
-174. [ ] `T174` Add integration test for successful MARKET order.  
+174. [x] `T174` Add integration test for successful MARKET order.  
 Done when: no price path works as designed.
 
-175. [ ] `T175` Add integration test for instrument-not-found rejection.  
+175. [x] `T175` Add integration test for instrument-not-found rejection.  
 Done when: status and error code are correct.
 
-176. [ ] `T176` Add integration test for risk max qty rejection.  
+176. [x] `T176` Add integration test for risk max qty rejection.  
 Done when: rejection reason code matches expected.
 
-177. [ ] `T177` Add integration test for risk max notional rejection.  
+177. [x] `T177` Add integration test for risk max notional rejection.  
 Done when: rejection reason code matches expected.
 
-178. [ ] `T178` Add integration test for risk price band rejection.  
+178. [x] `T178` Add integration test for risk price band rejection.  
 Done when: rejection reason code matches expected.
 
-179. [ ] `T179` Add integration test to verify events persisted for every order attempt.  
+179. [x] `T179` Add integration test to verify events persisted for every order attempt.  
 Done when: each call has `ORDER_RECEIVED` + terminal event.
 
-180. [ ] `T180` Add API docs for place-order endpoint in cookbook links.  
+180. [x] `T180` Add API docs for place-order endpoint in cookbook links.  
 Done when: docs reference real request/response examples.
 
 ---

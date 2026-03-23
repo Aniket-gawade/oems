@@ -38,6 +38,7 @@ public record PlaceOrderRequest(
 
     OrderDraft toDraft(String traderId) {
         return new OrderDraft(
+                clientOrderId.trim(),
                 traderId,
                 symbol.trim(),
                 side,
