@@ -292,7 +292,10 @@ try {
     $traderOrder = Invoke-HttpRequest `
         -Method "POST" `
         -Uri "$ApiBaseUrl/v1/orders" `
-        -Headers @{ Authorization = "Bearer $traderToken" } `
+        -Headers @{
+            Authorization = "Bearer $traderToken"
+            "Idempotency-Key" = "security-smoke-1001"
+        } `
         -Body '{"clientOrderId":"smoke-1001","symbol":"AAPL","side":"BUY","orderType":"MARKET","quantity":10}' `
         -ContentType "application/json"
     Assert-Status -Response $traderOrder -ExpectedStatus 201 -Context "TRADER order placement"

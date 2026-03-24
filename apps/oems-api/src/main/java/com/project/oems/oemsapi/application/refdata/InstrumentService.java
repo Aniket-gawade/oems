@@ -6,14 +6,12 @@ import com.project.oems.oemsapi.domain.refdata.Instrument;
 import com.project.oems.oemsapi.infrastructure.refdata.InstrumentMapper;
 import com.project.oems.oemsapi.infrastructure.refdata.InstrumentRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
-@Transactional(readOnly = true)
 public class InstrumentService {
 
     private final InstrumentRepository instrumentRepository;

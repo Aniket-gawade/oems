@@ -19,7 +19,6 @@ import com.project.oems.oemsapi.infrastructure.order.OrderEventRepository;
 import com.project.oems.oemsapi.infrastructure.order.OrderMapper;
 import com.project.oems.oemsapi.infrastructure.order.OrderRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -52,7 +51,6 @@ public class OrderApplicationService {
         this.orderMapper = orderMapper;
     }
 
-    @Transactional
     public OrderPlacementResult placeOrder(OrderDraft orderDraft) {
         Instrument instrument = instrumentService.validateTradable(
                 orderDraft.symbol(),

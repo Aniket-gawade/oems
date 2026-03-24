@@ -23,7 +23,13 @@ paths:
         - name: Idempotency-Key
           in: header
           required: true
-          description: Client-supplied idempotency key for safe retries.
+          description: |
+            Client-supplied idempotency key for safe retries.
+            Client policy:
+            - Generate one UUID-like key per logical order intent.
+            - Reuse the same key for retry attempts of the exact same payload.
+            - Use a new key for a new logical order.
+            - Retry with bounded exponential backoff (for example 250ms, 500ms, 1s).
           schema:
             type: string
             minLength: 8

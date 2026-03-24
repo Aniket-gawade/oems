@@ -598,64 +598,64 @@ Done when: docs reference real request/response examples.
 
 ## Phase K - Idempotency and Duplicate-Safety
 
-181. [ ] `T181` Create JPA entity `IdempotencyKeyEntity`.  
+181. [x] `T181` Create JPA entity `IdempotencyKeyEntity`.  
 Done when: table mapping includes request hash and response snapshot.
 
-182. [ ] `T182` Create repository `findByIdemKey`.  
+182. [x] `T182` Create repository `findByIdemKey`.  
 Done when: lookup by header key is supported.
 
-183. [ ] `T183` Create request-hash utility from canonical JSON payload.  
+183. [x] `T183` Create request-hash utility from canonical JSON payload.  
 Done when: stable hash for same payload regardless of field order.
 
-184. [ ] `T184` Add requirement check for `Idempotency-Key` header presence.  
+184. [x] `T184` Add requirement check for `Idempotency-Key` header presence.  
 Done when: missing header yields deterministic error.
 
-185. [ ] `T185` Add idempotency pre-check before business processing.  
+185. [x] `T185` Add idempotency pre-check before business processing.  
 Done when: existing key path short-circuits business flow.
 
-186. [ ] `T186` Implement "same key + same hash" replay response logic.  
+186. [x] `T186` Implement "same key + same hash" replay response logic.  
 Done when: existing response is returned without new DB order insert.
 
-187. [ ] `T187` Implement "same key + different hash" conflict logic.  
+187. [x] `T187` Implement "same key + different hash" conflict logic.  
 Done when: endpoint returns `409` with conflict code.
 
-188. [ ] `T188` Implement transactional insert lock for new idempotency key.  
+188. [x] `T188` Implement transactional insert lock for new idempotency key.  
 Done when: concurrent duplicate calls do not double-insert orders.
 
-189. [ ] `T189` Persist final response snapshot in idempotency table.  
+189. [x] `T189` Persist final response snapshot in idempotency table.  
 Done when: replay returns same status/body as original.
 
-190. [ ] `T190` Add idempotency TTL policy column handling.  
+190. [x] `T190` Add idempotency TTL policy column handling.  
 Done when: expiration timestamp is stored and used.
 
-191. [ ] `T191` Add Redis fast-path cache for idempotency lookup (optional).  
+191. [x] `T191` Add Redis fast-path cache for idempotency lookup (optional).  
 Done when: cache hit path works and DB remains source of truth.
 
-192. [ ] `T192` Add scheduled cleanup job for expired idempotency records.  
+192. [x] `T192` Add scheduled cleanup job for expired idempotency records.  
 Done when: cleanup removes old rows safely.
 
-193. [ ] `T193` Add integration test for repeated same request + same key.  
+193. [x] `T193` Add integration test for repeated same request + same key.  
 Done when: same order id returned both times.
 
-194. [ ] `T194` Add integration test for same key + different payload.  
+194. [x] `T194` Add integration test for same key + different payload.  
 Done when: `409 IDEMPOTENCY_CONFLICT` is returned.
 
-195. [ ] `T195` Add concurrency integration test with same key in parallel.  
+195. [x] `T195` Add concurrency integration test with same key in parallel.  
 Done when: only one order row created.
 
-196. [ ] `T196` Add load test scenario with retries and idempotency keys.  
+196. [x] `T196` Add load test scenario with retries and idempotency keys.  
 Done when: duplicate order creation rate is zero.
 
-197. [ ] `T197` Add operational query doc for idempotency troubleshooting.  
+197. [x] `T197` Add operational query doc for idempotency troubleshooting.  
 Done when: docs show SQL for inspecting key collisions.
 
-198. [ ] `T198` Add metric `idempotency_replay_total`.  
+198. [x] `T198` Add metric `idempotency_replay_total`.  
 Done when: replay path increments metric.
 
-199. [ ] `T199` Add metric `idempotency_conflict_total`.  
+199. [x] `T199` Add metric `idempotency_conflict_total`.  
 Done when: conflict path increments metric.
 
-200. [ ] `T200` Add API docs note: client key generation and retry policy.  
+200. [x] `T200` Add API docs note: client key generation and retry policy.  
 Done when: client behavior guidance is explicit.
 
 ---
@@ -832,7 +832,7 @@ Depends on: `T037` to `T090`.
 253. [x] `T253` Gate 3 complete: security + reference data + risk completed.  
 Depends on: `T091` to `T150`.
 
-254. [ ] `T254` Gate 4 complete: order placement + idempotency completed.  
+254. [x] `T254` Gate 4 complete: order placement + idempotency completed.  
 Depends on: `T151` to `T200`.
 
 255. [ ] `T255` Gate 5 complete: query + errors + observability completed.  

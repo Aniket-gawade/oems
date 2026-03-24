@@ -60,6 +60,7 @@ class SecurityIntegrationTest {
     @Test
     void postOrdersWithTraderRoleReachesController() throws Exception {
         mockMvc.perform(post("/v1/orders")
+                        .header("Idempotency-Key", "idem-sec-1001")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
