@@ -6,6 +6,7 @@ import com.project.oems.common.error.ErrorCode;
 import com.project.oems.common.web.CorrelationContext;
 import com.project.oems.contracts.order.OrderStatus;
 import com.project.oems.oemsapi.api.order.PlaceOrderResponse;
+import com.project.oems.oemsapi.config.error.ApiErrorStatusResolver;
 import com.project.oems.oemsapi.domain.order.Order;
 import com.project.oems.oemsapi.domain.order.OrderDraft;
 import com.project.oems.oemsapi.infrastructure.order.IdempotencyKeyEntity;
@@ -46,10 +47,10 @@ public class IdempotentOrderPlacementService {
             OrderPlacementResult placementResult = orderApplicationService.placeOrder(orderDraft);
             return handlePlacementResult(placementResult, requestPath, reservation);
         } catch (BusinessException ex) {
-            HttpStatus status = resolveStatus(ex.getErrorCode());
-            ApiError error = buildApiError(ex.getErrorCode(), ex.getMessage(), status.value(), requestPath);
-            idempotencyService.complete(reservation, status.value(), error, null, Instant.now());
-            return new OrderHttpResponse(status.value(), error, false);
+            int status = ApiErrorStatusResolver.resolve(ex.getErrorCode()).value();
+            ApiError error = buildApiError(ex.getErrorCode(), ex.getMessage(), status, requestPath);
+            idempotencyService.complete(reservation, status, error, null, Instant.now());
+            return new OrderHttpResponse(status, error, false);
         }
     }
 
@@ -58,21 +59,21 @@ public class IdempotentOrderPlacementService {
                                                     IdempotencyKeyEntity reservation) {
         Order order = placementResult.order();
         if (placementResult.isRejected()) {
-            HttpStatus status = resolveStatus(placementResult.rejectionErrorCode());
+            int status = ApiErrorStatusResolver.resolve(placementResult.rejectionErrorCode()).value();
             ApiError error = buildApiError(
                     placementResult.rejectionErrorCode(),
                     placementResult.rejectionMessage(),
-                    status.value(),
+                    status,
                     requestPath
             );
             idempotencyService.complete(
                     reservation,
-                    status.value(),
+                    status,
                     error,
                     order.id().toString(),
                     Instant.now()
             );
-            return new OrderHttpResponse(status.value(), error, false);
+            return new OrderHttpResponse(status, error, false);
         }
 
         PlaceOrderResponse response = new PlaceOrderResponse(
@@ -108,18 +109,6 @@ public class IdempotentOrderPlacementService {
                 resolveTraceId(),
                 Map.of()
         );
-    }
-
-    private HttpStatus resolveStatus(ErrorCode errorCode) {
-        return switch (errorCode) {
-            case INSTRUMENT_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case IDEMPOTENCY_CONFLICT -> HttpStatus.CONFLICT;
-            case INSTRUMENT_NOT_TRADABLE, INSTRUMENT_QTY_OUT_OF_RANGE, INSTRUMENT_TICK_SIZE_VIOLATION,
-                 RISK_MAX_QTY_EXCEEDED, RISK_MAX_NOTIONAL_EXCEEDED, RISK_PRICE_BAND_EXCEEDED ->
-                    HttpStatus.UNPROCESSABLE_CONTENT;
-            case VALIDATION_ERROR -> HttpStatus.BAD_REQUEST;
-            default -> HttpStatus.BAD_REQUEST;
-        };
     }
 
     private String resolveTraceId() {

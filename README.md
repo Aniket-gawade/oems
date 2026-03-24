@@ -6,7 +6,7 @@ Last updated: 2026-03-24
 
 ## Current Status
 
-1. Phases A through K are completed.
+1. Phases A through L are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V0` to `V13`).
@@ -16,6 +16,7 @@ Last updated: 2026-03-24
 8. Risk module is implemented (risk-limit lookup with fallback, fail-fast risk checks, reject metrics, and persisted risk audit payloads).
 9. Order placement core flow is implemented (`POST /v1/orders` with instrument+risk validation, transactional order/event persistence, and integration coverage for success/reject scenarios).
 10. Idempotency and duplicate-safety are implemented (`Idempotency-Key` required, canonical request hashing, replay/conflict handling, transactional duplicate protection, optional Redis fast-path cache, TTL cleanup scheduler, and replay/conflict metrics).
+11. Query, audit, global error handling, and observability baseline are implemented (`GET /v1/orders/{orderId}`, ops audit-event query, global API exception mapping, trace/trader MDC logging, order outcome/latency metrics, and Prometheus/Grafana alerting assets).
 
 ## Phase E (DB) Snapshot
 
@@ -59,6 +60,23 @@ Last updated: 2026-03-24
    - `idempotency_replay_total`
    - `idempotency_conflict_total`
 10. Integration tests cover missing key, replay, conflict, and same-key parallel submissions.
+
+## Phase L (Query, Error Model, Observability) Snapshot
+
+1. `GET /v1/orders/{orderId}` now returns contract-compliant order details with strict trader ownership scoping.
+2. Unknown or unauthorized order lookups are normalized to `404 RESOURCE_NOT_FOUND` with the standard `ApiError` payload.
+3. Ops audit endpoint is available at `GET /v1/ops/orders/{orderId}/events` and protected with `ROLE_OPS`.
+4. A global exception handler now standardizes validation, business, and unexpected failure responses across all controllers.
+5. Auth failures remain standardized through dedicated `401/403` handlers with `code`, `path`, `timestamp`, and `traceId`.
+6. Request correlation adds `X-Trace-Id` propagation plus MDC-enriched logs: `traceId` and `traderId`.
+7. New order metrics are emitted:
+   - `orders_accepted_total`
+   - `orders_rejected_total`
+   - `oems.orders.place.latency` (timer with p95 distribution enabled)
+8. Actuator exposure includes `health`, `info`, and `prometheus` (with `prometheus` secured to ops role).
+9. Observability assets added:
+   - Prometheus alert rules: `ops/prometheus/alerts.yml`
+   - Grafana provisioning + baseline dashboard: `ops/grafana/provisioning/*`, `ops/grafana/dashboards/oems-phase1-overview.json`
 
 ## Repository Layout
 

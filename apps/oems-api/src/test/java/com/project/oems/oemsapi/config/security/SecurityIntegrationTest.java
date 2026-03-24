@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -87,5 +88,41 @@ class SecurityIntegrationTest {
                 .andExpect(jsonPath("$.quantity").value(10))
                 .andExpect(jsonPath("$.orderId").isString())
                 .andExpect(jsonPath("$.createdAt").isString());
+    }
+
+    @Test
+    void actuatorHealthIsPublic() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void actuatorPrometheusIsRestrictedToOpsRole() throws Exception {
+        mockMvc.perform(get("/actuator/prometheus"))
+                .andExpect(status().isUnauthorized());
+
+        mockMvc.perform(get("/actuator/prometheus")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()
+                                .jwt(jwt -> jwt
+                                        .issuedAt(Instant.now())
+                                        .expiresAt(Instant.now().plusSeconds(3600))
+                                        .subject("trader1-sub")
+                                        .claim("preferred_username", "trader1")
+                                        .claim("aud", List.of("oems-api"))
+                                        .claim("realm_access", Map.of("roles", List.of("TRADER"))))
+                                .authorities(new SimpleGrantedAuthority("ROLE_TRADER"))))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/actuator/prometheus")
+                        .with(SecurityMockMvcRequestPostProcessors.jwt()
+                                .jwt(jwt -> jwt
+                                        .issuedAt(Instant.now())
+                                        .expiresAt(Instant.now().plusSeconds(3600))
+                                        .subject("ops1-sub")
+                                        .claim("preferred_username", "ops1")
+                                        .claim("aud", List.of("oems-api"))
+                                        .claim("realm_access", Map.of("roles", List.of("OPS"))))
+                                .authorities(new SimpleGrantedAuthority("ROLE_OPS"))))
+                .andExpect(status().isOk());
     }
 }

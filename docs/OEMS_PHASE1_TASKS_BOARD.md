@@ -1,6 +1,6 @@
 # OEMS Phase 1 Tasks Board (Atomic, Start-to-End)
 
-Last updated: 2026-03-17
+Last updated: 2026-03-24
 
 ## How to use this board
 
@@ -661,64 +661,64 @@ Done when: client behavior guidance is explicit.
 ---
 ## Phase L - Query, Audit, Error Model, and Observability
 
-201. [ ] `T201` Create query DTO for order details response.  
+201. [x] `T201` Create query DTO for order details response.  
 Done when: response includes status, symbol, qty, price, timestamps.
 
-202. [ ] `T202` Implement `OrderQueryService#getOrderById(orderId, traderId)`.  
+202. [x] `T202` Implement `OrderQueryService#getOrderById(orderId, traderId)`.  
 Done when: service enforces trader-scoped access.
 
-203. [ ] `T203` Add controller `GET /v1/orders/{orderId}`.  
+203. [x] `T203` Add controller `GET /v1/orders/{orderId}`.  
 Done when: endpoint returns contract-compliant response.
 
-204. [ ] `T204` Add `404` handling for unknown order id.  
+204. [x] `T204` Add `404` handling for unknown order id.  
 Done when: standardized not-found error returned.
 
-205. [ ] `T205` Add trader ownership check for queried order.  
+205. [x] `T205` Add trader ownership check for queried order.  
 Done when: trader cannot read another trader's order.
 
-206. [ ] `T206` Add service method to fetch order events by order id.  
+206. [x] `T206` Add service method to fetch order events by order id.  
 Done when: events returned ordered by timestamp.
 
-207. [ ] `T207` Add ops/internal endpoint to read order events.  
+207. [x] `T207` Add ops/internal endpoint to read order events.  
 Done when: audit trail can be queried by ops role.
 
-208. [ ] `T208` Add security rule for audit endpoint (`ROLE_OPS`).  
+208. [x] `T208` Add security rule for audit endpoint (`ROLE_OPS`).  
 Done when: trader token cannot access ops audit endpoint.
 
-209. [ ] `T209` Add global exception handler class.  
+209. [x] `T209` Add global exception handler class.  
 Done when: all unhandled exceptions map to standard error.
 
-210. [ ] `T210` Map validation exceptions to `VALIDATION_ERROR`.  
+210. [x] `T210` Map validation exceptions to `VALIDATION_ERROR`.  
 Done when: field errors use common payload shape.
 
-211. [ ] `T211` Map business exceptions to domain-specific error codes.  
+211. [x] `T211` Map business exceptions to domain-specific error codes.  
 Done when: risk/instrument/idempotency failures are explicit.
 
-212. [ ] `T212` Map auth exceptions to standardized `401`/`403` payloads.  
+212. [x] `T212` Map auth exceptions to standardized `401`/`403` payloads.  
 Done when: payload includes code, path, timestamp, trace id.
 
-213. [ ] `T213` Add request filter to propagate/generate `X-Trace-Id`.  
+213. [x] `T213` Add request filter to propagate/generate `X-Trace-Id`.  
 Done when: all requests include trace id context.
 
-214. [ ] `T214` Add trace id and trader id to logging pattern (MDC).  
+214. [x] `T214` Add trace id and trader id to logging pattern (MDC).  
 Done when: logs are correlated by request.
 
-215. [ ] `T215` Add metrics `orders_accepted_total` and `orders_rejected_total`.  
+215. [x] `T215` Add metrics `orders_accepted_total` and `orders_rejected_total`.  
 Done when: counters increment on each terminal order outcome.
 
-216. [ ] `T216` Add timer metric for `POST /v1/orders` latency.  
+216. [x] `T216` Add timer metric for `POST /v1/orders` latency.  
 Done when: p95 is visible in metrics backend.
 
-217. [ ] `T217` Expose actuator health/info/prometheus endpoints.  
+217. [x] `T217` Expose actuator health/info/prometheus endpoints.  
 Done when: endpoints are reachable and secured.
 
-218. [ ] `T218` Add Prometheus scrape config and Grafana dashboard baseline.  
+218. [x] `T218` Add Prometheus scrape config and Grafana dashboard baseline.  
 Done when: dashboard shows latency/error/rejection trends.
 
-219. [ ] `T219` Add alert rule for latency breach.  
+219. [x] `T219` Add alert rule for latency breach.  
 Done when: test alert can be triggered intentionally.
 
-220. [ ] `T220` Add alert rule for elevated rejection spike.  
+220. [x] `T220` Add alert rule for elevated rejection spike.  
 Done when: reject surge generates alert.
 
 ---
@@ -835,7 +835,7 @@ Depends on: `T091` to `T150`.
 254. [x] `T254` Gate 4 complete: order placement + idempotency completed.  
 Depends on: `T151` to `T200`.
 
-255. [ ] `T255` Gate 5 complete: query + errors + observability completed.  
+255. [x] `T255` Gate 5 complete: query + errors + observability completed.  
 Depends on: `T201` to `T220`.
 
 256. [ ] `T256` Gate 6 complete: testing and quality automation completed.  
