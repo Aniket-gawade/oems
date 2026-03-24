@@ -72,14 +72,7 @@ public class OrderApiExceptionHandler {
     }
 
     private HttpStatus resolveStatus(ErrorCode errorCode) {
-        return switch (errorCode) {
-            case INSTRUMENT_NOT_FOUND -> HttpStatus.NOT_FOUND;
-            case INSTRUMENT_NOT_TRADABLE, INSTRUMENT_QTY_OUT_OF_RANGE, INSTRUMENT_TICK_SIZE_VIOLATION,
-                 RISK_MAX_QTY_EXCEEDED, RISK_MAX_NOTIONAL_EXCEEDED, RISK_PRICE_BAND_EXCEEDED ->
-                    HttpStatus.UNPROCESSABLE_CONTENT;
-            case VALIDATION_ERROR -> HttpStatus.BAD_REQUEST;
-            default -> HttpStatus.BAD_REQUEST;
-        };
+        return OrderErrorStatusResolver.resolve(errorCode);
     }
 
     private Map<String, String> toFieldErrorPayload(FieldError fieldError) {

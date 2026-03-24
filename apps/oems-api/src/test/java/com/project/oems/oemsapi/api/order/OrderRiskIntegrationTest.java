@@ -15,6 +15,12 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -37,6 +43,7 @@ class OrderRiskIntegrationTest {
     void successfulLimitOrderPersistsOrderAndEvents() throws Exception {
         String response = mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-limit-2001")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -78,6 +85,7 @@ class OrderRiskIntegrationTest {
     void successfulMarketOrderWithoutPriceIsAccepted() throws Exception {
         String response = mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-market-2002")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -111,6 +119,7 @@ class OrderRiskIntegrationTest {
     void limitOrderMissingPriceReturnsValidationError() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-invalid-1001")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -131,6 +140,7 @@ class OrderRiskIntegrationTest {
     void instrumentNotFoundReturns404() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-ins-2003")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -151,6 +161,7 @@ class OrderRiskIntegrationTest {
     void riskMaxQtyRejectionPersistsRejectedOrderAndEvents() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-risk-2004")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -202,6 +213,7 @@ class OrderRiskIntegrationTest {
     void riskMaxNotionalRejectionReturnsExpectedCode() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-risk-2005")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -222,6 +234,7 @@ class OrderRiskIntegrationTest {
     void riskPriceBandRejectionReturnsExpectedCode() throws Exception {
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-risk-2006")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -242,6 +255,7 @@ class OrderRiskIntegrationTest {
     void everyOrderAttemptPersistsReceivedAndTerminalEvent() throws Exception {
         String acceptedResponse = mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-evt-2007")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -262,6 +276,7 @@ class OrderRiskIntegrationTest {
 
         mockMvc.perform(post("/v1/orders")
                         .with(traderJwt())
+                        .header("Idempotency-Key", "idem-evt-2008")
                         .contentType(APPLICATION_JSON)
                         .content("""
                                 {
@@ -281,6 +296,157 @@ class OrderRiskIntegrationTest {
                 "evt-2008"
         );
         assertEvents(rejectedOrderId, List.of("ORDER_RECEIVED", "ORDER_REJECTED"));
+    }
+
+    @Test
+    void missingIdempotencyHeaderReturnsValidationError() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "idem-3001",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.status").value(400));
+    }
+
+    @Test
+    void repeatedSameRequestWithSameKeyReturnsSameOrderId() throws Exception {
+        String requestBody = """
+                {
+                  "clientOrderId": "idem-3002",
+                  "symbol": "AAPL",
+                  "side": "BUY",
+                  "orderType": "LIMIT",
+                  "quantity": 10,
+                  "price": 200.00
+                }
+                """;
+
+        String firstResponse = mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-replay-3002")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String secondResponse = mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-replay-3002")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String firstOrderId = JsonPath.read(firstResponse, "$.orderId");
+        String secondOrderId = JsonPath.read(secondResponse, "$.orderId");
+        Integer orderCount = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM order_book WHERE client_order_id = ?",
+                Integer.class,
+                "idem-3002"
+        );
+
+        assertThat(firstOrderId).isEqualTo(secondOrderId);
+        assertThat(orderCount).isEqualTo(1);
+    }
+
+    @Test
+    void sameKeyWithDifferentPayloadReturnsConflict() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-conflict-3003")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "idem-3003-a",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-conflict-3003")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "idem-3003-b",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 11,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("IDEMPOTENCY_CONFLICT"))
+                .andExpect(jsonPath("$.status").value(409));
+    }
+
+    @Test
+    void parallelRequestsWithSameKeyCreateOnlyOneOrder() throws Exception {
+        String requestBody = """
+                {
+                  "clientOrderId": "idem-3004",
+                  "symbol": "AAPL",
+                  "side": "BUY",
+                  "orderType": "LIMIT",
+                  "quantity": 10,
+                  "price": 200.00
+                }
+                """;
+
+        CountDownLatch startGate = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            Callable<Integer> task = () -> {
+                startGate.await(5, TimeUnit.SECONDS);
+                return mockMvc.perform(post("/v1/orders")
+                                .with(traderJwt())
+                                .header("Idempotency-Key", "idem-parallel-3004")
+                                .contentType(APPLICATION_JSON)
+                                .content(requestBody))
+                        .andReturn()
+                        .getResponse()
+                        .getStatus();
+            };
+
+            Future<Integer> first = executor.submit(task);
+            Future<Integer> second = executor.submit(task);
+            startGate.countDown();
+
+            int firstStatus = first.get(10, TimeUnit.SECONDS);
+            int secondStatus = second.get(10, TimeUnit.SECONDS);
+
+            Integer orderCount = jdbcTemplate.queryForObject(
+                    "SELECT COUNT(*) FROM order_book WHERE client_order_id = ?",
+                    Integer.class,
+                    "idem-3004"
+            );
+
+            assertThat(firstStatus).isEqualTo(201);
+            assertThat(secondStatus).isEqualTo(201);
+            assertThat(orderCount).isEqualTo(1);
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor traderJwt() {

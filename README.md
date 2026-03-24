@@ -2,11 +2,11 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1.
 
-Last updated: 2026-03-23
+Last updated: 2026-03-24
 
 ## Current Status
 
-1. Phases A through J are completed.
+1. Phases A through K are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V0` to `V13`).
@@ -15,6 +15,7 @@ Last updated: 2026-03-23
 7. Reference-data module is implemented (`GET /v1/instruments/{symbol}` + tradable/qty/tick validations).
 8. Risk module is implemented (risk-limit lookup with fallback, fail-fast risk checks, reject metrics, and persisted risk audit payloads).
 9. Order placement core flow is implemented (`POST /v1/orders` with instrument+risk validation, transactional order/event persistence, and integration coverage for success/reject scenarios).
+10. Idempotency and duplicate-safety are implemented (`Idempotency-Key` required, canonical request hashing, replay/conflict handling, transactional duplicate protection, optional Redis fast-path cache, TTL cleanup scheduler, and replay/conflict metrics).
 
 ## Phase E (DB) Snapshot
 
@@ -43,6 +44,21 @@ Last updated: 2026-03-23
 5. Event trail is persisted in `order_event` with `ORDER_RECEIVED` and terminal event.
 6. Place-order path executes in a single transaction for order + events.
 7. Integration tests cover: successful `LIMIT`, successful `MARKET`, instrument-not-found, and all risk rejection variants.
+
+## Phase K (Idempotency) Snapshot
+
+1. `POST /v1/orders` requires `Idempotency-Key` (missing/invalid => deterministic `400 VALIDATION_ERROR`).
+2. Canonical request hash is computed to support stable duplicate detection independent of JSON field order.
+3. Same key + same payload returns the original status/body without creating a new order.
+4. Same key + different payload returns `409 IDEMPOTENCY_CONFLICT`.
+5. Concurrent same-key submissions are protected by DB uniqueness + transactional reservation/finalization flow.
+6. Final response snapshots are persisted in `idempotency_key` with TTL (`expires_at`) for deterministic replay.
+7. Optional Redis idempotency cache is available as a read optimization; MySQL remains source of truth.
+8. Scheduled cleanup removes expired idempotency records.
+9. Metrics emitted:
+   - `idempotency_replay_total`
+   - `idempotency_conflict_total`
+10. Integration tests cover missing key, replay, conflict, and same-key parallel submissions.
 
 ## Repository Layout
 
@@ -132,6 +148,17 @@ Using helper scripts:
 ./scripts/security-smoke.ps1 -StartApi
 ```
 
+Idempotency retry load scenario (k6):
+
+```powershell
+k6 run `
+  -e OEMS_BASE_URL=http://localhost:8080 `
+  -e OEMS_BEARER_TOKEN="<jwt>" `
+  -e VUS=20 `
+  -e DURATION=2m `
+  scripts/load-idempotency-retries.js
+```
+
 ## Local Endpoints
 
 When infrastructure is running:
@@ -152,3 +179,5 @@ When infrastructure is running:
 7. Security guide: `docs/SECURITY_PHASE1.md`
 8. Secrets policy: `docs/SECRETS_POLICY.md`
 9. Risk reject catalog: `docs/RISK_CODES.md`
+10. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
+11. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
