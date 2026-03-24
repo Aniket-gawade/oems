@@ -18,6 +18,8 @@ import com.project.oems.oemsapi.infrastructure.order.OrderEventEntity;
 import com.project.oems.oemsapi.infrastructure.order.OrderEventRepository;
 import com.project.oems.oemsapi.infrastructure.order.OrderMapper;
 import com.project.oems.oemsapi.infrastructure.order.OrderRepository;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,6 +37,8 @@ public class OrderApplicationService {
     private final OrderRepository orderRepository;
     private final OrderEventRepository orderEventRepository;
     private final OrderMapper orderMapper;
+    private final Counter ordersAcceptedCounter;
+    private final Counter ordersRejectedCounter;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public OrderApplicationService(InstrumentService instrumentService,
@@ -42,13 +46,20 @@ public class OrderApplicationService {
                                    OrderNotionalCalculator orderNotionalCalculator,
                                    OrderRepository orderRepository,
                                    OrderEventRepository orderEventRepository,
-                                   OrderMapper orderMapper) {
+                                   OrderMapper orderMapper,
+                                   MeterRegistry meterRegistry) {
         this.instrumentService = instrumentService;
         this.riskCheckService = riskCheckService;
         this.orderNotionalCalculator = orderNotionalCalculator;
         this.orderRepository = orderRepository;
         this.orderEventRepository = orderEventRepository;
         this.orderMapper = orderMapper;
+        this.ordersAcceptedCounter = Counter.builder("orders_accepted_total")
+                .description("Total number of accepted orders.")
+                .register(meterRegistry);
+        this.ordersRejectedCounter = Counter.builder("orders_rejected_total")
+                .description("Total number of rejected orders.")
+                .register(meterRegistry);
     }
 
     public OrderPlacementResult placeOrder(OrderDraft orderDraft) {
@@ -90,10 +101,12 @@ public class OrderApplicationService {
         persistOrderEvent(savedOrder.id(), OrderEventType.ORDER_RECEIVED, receivedPayload(orderDraft), traceId, now);
         if (riskResult.isPass()) {
             persistOrderEvent(savedOrder.id(), OrderEventType.ORDER_ACCEPTED, acceptedPayload(savedOrder), traceId, now);
+            ordersAcceptedCounter.increment();
             return OrderPlacementResult.accepted(savedOrder);
         }
 
         persistOrderEvent(savedOrder.id(), OrderEventType.ORDER_REJECTED, rejectedPayload(savedOrder, riskResult), traceId, now);
+        ordersRejectedCounter.increment();
         return OrderPlacementResult.rejected(savedOrder, toErrorCode(riskResult.rejectCode()), riskResult.message());
     }
 

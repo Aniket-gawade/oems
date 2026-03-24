@@ -1,0 +1,24 @@
+groups:
+  - name: oems-phase1-alerts
+    rules:
+      - alert: OemsOrderPostLatencyP95High
+        expr: histogram_quantile(0.95, sum(rate(oems_orders_place_latency_seconds_bucket[5m])) by (le)) > 0.50
+        for: 10m
+        labels:
+          severity: warning
+          service: oems-api
+        annotations:
+          summary: "OEMS POST /v1/orders p95 latency breach"
+          description: "p95 latency for oems.orders.place.latency has exceeded 500ms for 10 minutes."
+          runbook: "Send load to POST /v1/orders and inspect DB/Redis saturation and downstream dependency health."
+
+      - alert: OemsOrderRejectionSpike
+        expr: (sum(rate(orders_rejected_total[5m])) / clamp_min(sum(rate(orders_accepted_total[5m])) + sum(rate(orders_rejected_total[5m])), 0.001)) > 0.30 and sum(rate(orders_rejected_total[5m])) > 0.10
+        for: 5m
+        labels:
+          severity: critical
+          service: oems-api
+        annotations:
+          summary: "OEMS order rejection spike detected"
+          description: "Order rejection ratio exceeded 30% over the last 5 minutes with sustained rejection throughput."
+          runbook: "Trigger intentionally by sending known-failing risk orders; investigate risk-limit changes and instrument data integrity."

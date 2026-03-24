@@ -24,7 +24,9 @@ import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -449,6 +451,47 @@ class OrderRiskIntegrationTest {
         }
     }
 
+    @Test
+    void orderOutcomeAndLatencyMetricsArePublished() throws Exception {
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-metric-3005")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "metric-3005",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 10,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/v1/orders")
+                        .with(traderJwt())
+                        .header("Idempotency-Key", "idem-metric-3006")
+                        .contentType(APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "clientOrderId": "metric-3006",
+                                  "symbol": "AAPL",
+                                  "side": "BUY",
+                                  "orderType": "LIMIT",
+                                  "quantity": 5001,
+                                  "price": 200.00
+                                }
+                                """))
+                .andExpect(status().isUnprocessableEntity());
+
+        mockMvc.perform(get("/actuator/prometheus").with(opsJwt()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("orders_accepted_total")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("orders_rejected_total")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("oems_orders_place_latency_seconds_count")));
+    }
+
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor traderJwt() {
         return SecurityMockMvcRequestPostProcessors.jwt()
                 .jwt(jwt -> jwt
@@ -459,6 +502,18 @@ class OrderRiskIntegrationTest {
                         .claim("aud", List.of("oems-api"))
                         .claim("realm_access", Map.of("roles", List.of("TRADER"))))
                 .authorities(new SimpleGrantedAuthority("ROLE_TRADER"));
+    }
+
+    private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor opsJwt() {
+        return SecurityMockMvcRequestPostProcessors.jwt()
+                .jwt(jwt -> jwt
+                        .issuedAt(Instant.now())
+                        .expiresAt(Instant.now().plusSeconds(3600))
+                        .subject("ops1-sub")
+                        .claim("preferred_username", "ops1")
+                        .claim("aud", List.of("oems-api"))
+                        .claim("realm_access", Map.of("roles", List.of("OPS"))))
+                .authorities(new SimpleGrantedAuthority("ROLE_OPS"));
     }
 
     private void assertEvents(String orderId, List<String> expectedTypes) {

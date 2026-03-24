@@ -6,8 +6,11 @@ import com.project.oems.common.web.CorrelationContext;
 import com.project.oems.oemsapi.application.order.CanonicalRequestHashUtil;
 import com.project.oems.oemsapi.application.order.IdempotentOrderPlacementService;
 import com.project.oems.oemsapi.application.order.OrderHttpResponse;
+import com.project.oems.oemsapi.application.order.OrderQueryService;
 import com.project.oems.oemsapi.application.security.TraderIdExtractor;
 import com.project.oems.oemsapi.domain.order.OrderDraft;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/orders")
@@ -36,13 +40,22 @@ public class OrderController {
     private final TraderIdExtractor traderIdExtractor;
     private final CanonicalRequestHashUtil canonicalRequestHashUtil;
     private final IdempotentOrderPlacementService idempotentOrderPlacementService;
+    private final OrderQueryService orderQueryService;
+    private final Timer placeOrderLatencyTimer;
 
     public OrderController(TraderIdExtractor traderIdExtractor,
                            CanonicalRequestHashUtil canonicalRequestHashUtil,
-                           IdempotentOrderPlacementService idempotentOrderPlacementService) {
+                           IdempotentOrderPlacementService idempotentOrderPlacementService,
+                           OrderQueryService orderQueryService,
+                           MeterRegistry meterRegistry) {
         this.traderIdExtractor = traderIdExtractor;
         this.canonicalRequestHashUtil = canonicalRequestHashUtil;
         this.idempotentOrderPlacementService = idempotentOrderPlacementService;
+        this.orderQueryService = orderQueryService;
+        this.placeOrderLatencyTimer = Timer.builder("oems.orders.place.latency")
+                .description("End-to-end latency for POST /v1/orders requests.")
+                .publishPercentileHistogram()
+                .register(meterRegistry);
     }
 
     @PostMapping
@@ -50,43 +63,43 @@ public class OrderController {
                                         @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
                                         Authentication authentication,
                                         HttpServletRequest httpServletRequest) {
-        String normalizedIdempotencyKey = normalizeIdempotencyKey(idempotencyKey);
-        String traderId = traderIdExtractor.extract(authentication);
-        OrderDraft orderDraft = request.toDraft(traderId);
-        String requestHash = canonicalRequestHashUtil.hash(canonicalPayloadForHash(orderDraft));
-        String traceId = CorrelationContext.getTraceId();
+        Timer.Sample timerSample = Timer.start();
+        try {
+            String normalizedIdempotencyKey = normalizeIdempotencyKey(idempotencyKey);
+            String traderId = traderIdExtractor.extract(authentication);
+            OrderDraft orderDraft = request.toDraft(traderId);
+            String requestHash = canonicalRequestHashUtil.hash(canonicalPayloadForHash(orderDraft));
+            String traceId = CorrelationContext.getTraceId();
 
-        log.info("placeOrder request received traderId={} clientOrderId={} symbol={} orderType={} idempotencyKey={} traceId={}",
-                traderId, orderDraft.clientOrderId(), orderDraft.symbol(), orderDraft.orderType(), normalizedIdempotencyKey, traceId);
+            log.info("placeOrder request received traderId={} clientOrderId={} symbol={} orderType={} idempotencyKey={} traceId={}",
+                    traderId, orderDraft.clientOrderId(), orderDraft.symbol(), orderDraft.orderType(), normalizedIdempotencyKey, traceId);
 
-        OrderHttpResponse response = idempotentOrderPlacementService.placeOrder(
-                normalizedIdempotencyKey,
-                requestHash,
-                httpServletRequest.getRequestURI(),
-                orderDraft
-        );
+            OrderHttpResponse response = idempotentOrderPlacementService.placeOrder(
+                    normalizedIdempotencyKey,
+                    requestHash,
+                    httpServletRequest.getRequestURI(),
+                    orderDraft
+            );
 
-        if (response.replay()) {
-            log.info("placeOrder replayed idempotencyKey={} status={} traceId={}",
-                    normalizedIdempotencyKey, response.status(), traceId);
-        } else {
-            log.info("placeOrder completed idempotencyKey={} status={} traceId={}",
-                    normalizedIdempotencyKey, response.status(), traceId);
+            if (response.replay()) {
+                log.info("placeOrder replayed idempotencyKey={} status={} traceId={}",
+                        normalizedIdempotencyKey, response.status(), traceId);
+            } else {
+                log.info("placeOrder completed idempotencyKey={} status={} traceId={}",
+                        normalizedIdempotencyKey, response.status(), traceId);
+            }
+
+            return ResponseEntity.status(response.status()).body(response.body());
+        } finally {
+            timerSample.stop(placeOrderLatencyTimer);
         }
-
-        return ResponseEntity.status(response.status()).body(response.body());
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<Map<String, Object>> getOrder(@PathVariable String orderId,
+    public ResponseEntity<OrderDetailResponse> getOrder(@PathVariable UUID orderId,
                                                         Authentication authentication) {
         String traderId = traderIdExtractor.extract(authentication);
-        Map<String, Object> body = Map.of(
-                "orderId", orderId,
-                "status", "NEW",
-                "traderId", traderId
-        );
-        return ResponseEntity.ok(body);
+        return ResponseEntity.ok(orderQueryService.getOrderById(orderId, traderId));
     }
 
     private String normalizeIdempotencyKey(String idempotencyKey) {

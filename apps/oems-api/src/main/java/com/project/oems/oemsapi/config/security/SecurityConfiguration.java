@@ -81,6 +81,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/actuator/**").hasRole("OPS")
                 .requestMatchers(HttpMethod.POST, "/v1/orders").hasRole("TRADER")
                 .requestMatchers(HttpMethod.GET, "/v1/orders/**").hasRole("TRADER")
+                .requestMatchers(HttpMethod.GET, "/v1/ops/orders/**").hasRole("OPS")
                 .requestMatchers(HttpMethod.GET, "/v1/instruments/**").authenticated()
                 .requestMatchers("/v1/**").authenticated()
                 .anyRequest().permitAll();

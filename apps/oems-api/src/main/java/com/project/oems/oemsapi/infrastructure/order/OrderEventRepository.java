@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface OrderEventRepository extends JpaRepository<OrderEventEntity, Long> {
 
-    List<OrderEventEntity> findByOrderIdOrderByCreatedAtAsc(String orderId);
+    List<OrderEventEntity> findByOrderIdOrderByCreatedAtAscIdAsc(String orderId);
 }

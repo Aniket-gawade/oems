@@ -18,6 +18,9 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -36,13 +39,15 @@ public class IdempotencyService {
     private final Counter replayCounter;
     private final Counter conflictCounter;
     private final StringRedisTemplate redisTemplate;
+    private final TransactionTemplate requiresNewTransactionTemplate;
     @PersistenceContext
     private EntityManager entityManager;
 
     public IdempotencyService(IdempotencyKeyRepository idempotencyKeyRepository,
                               IdempotencyProperties idempotencyProperties,
                               MeterRegistry meterRegistry,
-                              Optional<StringRedisTemplate> redisTemplate) {
+                              Optional<StringRedisTemplate> redisTemplate,
+                              PlatformTransactionManager transactionManager) {
         this.idempotencyKeyRepository = idempotencyKeyRepository;
         this.idempotencyProperties = idempotencyProperties;
         this.objectMapper = new ObjectMapper().findAndRegisterModules();
@@ -53,6 +58,8 @@ public class IdempotencyService {
                 .description("Total number of idempotency conflict responses.")
                 .register(meterRegistry);
         this.redisTemplate = redisTemplate.orElse(null);
+        this.requiresNewTransactionTemplate = new TransactionTemplate(transactionManager);
+        this.requiresNewTransactionTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
     }
 
     public BeginResult begin(String idemKey, String requestHash, Instant now) {
@@ -108,7 +115,13 @@ public class IdempotencyService {
         );
 
         try {
-            return BeginResult.reserved(idempotencyKeyRepository.saveAndFlush(reservation));
+            IdempotencyKeyEntity persisted = requiresNewTransactionTemplate.execute(status ->
+                    idempotencyKeyRepository.saveAndFlush(reservation)
+            );
+            if (persisted == null) {
+                throw new IllegalStateException("Failed to persist idempotency reservation for key: " + idemKey);
+            }
+            return BeginResult.reserved(persisted);
         } catch (DataIntegrityViolationException ex) {
             entityManager.clear();
             IdempotencyKeyEntity existing = idempotencyKeyRepository.findByIdemKey(idemKey)
@@ -136,6 +149,17 @@ public class IdempotencyService {
         }
 
         if (existing.getResponseStatus() == PROCESSING_STATUS) {
+            Optional<IdempotencyKeyEntity> completed = awaitCompletion(existing.getIdemKey(), now);
+            if (completed.isPresent()) {
+                IdempotencyKeyEntity completedEntity = completed.get();
+                replayCounter.increment();
+                cacheReplaySnapshot(completedEntity, now);
+                return BeginResult.replay(
+                        completedEntity.getResponseStatus(),
+                        parseJson(completedEntity.getResponseBody())
+                );
+            }
+
             conflictCounter.increment();
             throw new BusinessRuleViolation(
                     ErrorCode.IDEMPOTENCY_CONFLICT,
@@ -146,6 +170,25 @@ public class IdempotencyService {
         replayCounter.increment();
         cacheReplaySnapshot(existing, now);
         return BeginResult.replay(existing.getResponseStatus(), parseJson(existing.getResponseBody()));
+    }
+
+    private Optional<IdempotencyKeyEntity> awaitCompletion(String idemKey, Instant now) {
+        Instant deadline = now.plusSeconds(5);
+        while (Instant.now().isBefore(deadline)) {
+            entityManager.clear();
+            Optional<IdempotencyKeyEntity> current = idempotencyKeyRepository.findByIdemKey(idemKey);
+            if (current.isPresent() && current.get().getResponseStatus() != PROCESSING_STATUS) {
+                return current;
+            }
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ex) {
+                Thread.currentThread().interrupt();
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 
     private Optional<ReplaySnapshot> lookupReplayFromCache(String idemKey, String requestHash, Instant now) {
