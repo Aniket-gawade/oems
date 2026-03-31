@@ -1,14 +1,13 @@
 package com.project.oems.oemsapi.api.order;
 
 import com.jayway.jsonpath.JsonPath;
+import com.project.oems.oemsapi.support.ContainerizedIntegrationTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -30,16 +29,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-@AutoConfigureMockMvc
-@ActiveProfiles("test")
-class OrderRiskIntegrationTest {
+class OrderRiskIntegrationTest extends ContainerizedIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Test
     void successfulLimitOrderPersistsOrderAndEvents() throws Exception {
@@ -355,6 +354,7 @@ class OrderRiskIntegrationTest {
 
         String firstOrderId = JsonPath.read(firstResponse, "$.orderId");
         String secondOrderId = JsonPath.read(secondResponse, "$.orderId");
+        String replayCacheValue = redisTemplate.opsForValue().get("oems:test:idempotency:idem-replay-3002");
         Integer orderCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM order_book WHERE client_order_id = ?",
                 Integer.class,
@@ -362,6 +362,7 @@ class OrderRiskIntegrationTest {
         );
 
         assertThat(firstOrderId).isEqualTo(secondOrderId);
+        assertThat(replayCacheValue).isNotBlank();
         assertThat(orderCount).isEqualTo(1);
     }
 
