@@ -1,0 +1,13 @@
+.git
+.gitignore
+.idea
+.tmp
+target
+**/target
+docs
+ops
+scripts
+README.md
+HELP.md
+*.log
+.env
