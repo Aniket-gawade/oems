@@ -2,11 +2,11 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1.
 
-Last updated: 2026-03-24
+Last updated: 2026-03-31
 
 ## Current Status
 
-1. Phases A through L are completed.
+1. Phases A through M are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V0` to `V13`).
@@ -17,6 +17,7 @@ Last updated: 2026-03-24
 9. Order placement core flow is implemented (`POST /v1/orders` with instrument+risk validation, transactional order/event persistence, and integration coverage for success/reject scenarios).
 10. Idempotency and duplicate-safety are implemented (`Idempotency-Key` required, canonical request hashing, replay/conflict handling, transactional duplicate protection, optional Redis fast-path cache, TTL cleanup scheduler, and replay/conflict metrics).
 11. Query, audit, global error handling, and observability baseline are implemented (`GET /v1/orders/{orderId}`, ops audit-event query, global API exception mapping, trace/trader MDC logging, order outcome/latency metrics, and Prometheus/Grafana alerting assets).
+12. Testing and quality automation baseline is implemented (Testcontainers-backed integration test wiring, OpenAPI example contract tests, architecture boundary tests, JaCoCo coverage gate, and Checkstyle/PMD build checks).
 
 ## Phase E (DB) Snapshot
 
@@ -77,6 +78,20 @@ Last updated: 2026-03-24
 9. Observability assets added:
    - Prometheus alert rules: `ops/prometheus/alerts.yml`
    - Grafana provisioning + baseline dashboard: `ops/grafana/provisioning/*`, `ops/grafana/dashboards/oems-phase1-overview.json`
+
+## Phase M (Testing and Quality Automation) Snapshot
+
+1. JUnit 5 baseline test execution is enforced across all modules from the root build.
+2. Integration tests are wired to Testcontainers for MySQL and Redis.
+3. Existing order/risk/idempotency/query/audit integration suites are consolidated on a shared containerized base test.
+4. OpenAPI example contract validation is automated via JSON schema checks against `docs/api/openapi-phase1.yaml`.
+5. Architecture boundary tests are added for `apps/oems-api` layers (`api`, `application`, `domain`, `infrastructure`, `config`).
+6. Regression dataset coverage is added for known risk scenarios (`apps/oems-api/src/test/resources/datasets/risk-regression-cases.csv`).
+7. Quality gates run in `verify`:
+   - JaCoCo report + threshold enforcement
+   - Checkstyle (`ops/quality/checkstyle.xml`)
+   - PMD (`ops/quality/pmd-ruleset.xml`)
+8. Testcontainers suites are configured with `disabledWithoutDocker=true`; they run when Docker is available and are skipped automatically otherwise.
 
 ## Repository Layout
 
@@ -154,6 +169,11 @@ Using wrapper directly:
 $env:SPRING_PROFILES_ACTIVE="local"
 ./mvnw.cmd -f apps/oems-api/pom.xml spring-boot:run
 ```
+
+Notes:
+
+1. `clean verify` now includes Checkstyle, PMD, JaCoCo, architecture tests, and OpenAPI contract tests.
+2. Docker is required for executing Testcontainers-backed integration tests; when Docker is unavailable those specific tests are skipped by design.
 
 Using helper scripts:
 

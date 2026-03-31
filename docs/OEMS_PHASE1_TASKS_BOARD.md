@@ -725,52 +725,52 @@ Done when: reject surge generates alert.
 
 ## Phase M - Testing and Quality Automation
 
-221. [ ] `T221` Configure JUnit 5 baseline test setup across modules.  
+221. [x] `T221` Configure JUnit 5 baseline test setup across modules.  
 Done when: all modules run tests from root build.
 
-222. [ ] `T222` Configure Testcontainers for MySQL integration tests.  
+222. [x] `T222` Configure Testcontainers for MySQL integration tests.  
 Done when: integration suite starts isolated MySQL.
 
-223. [ ] `T223` Configure Testcontainers for Redis integration tests.  
+223. [x] `T223` Configure Testcontainers for Redis integration tests.  
 Done when: idempotency tests run with isolated Redis.
 
-224. [ ] `T224` Add integration test for `POST /orders` success path.  
+224. [x] `T224` Add integration test for `POST /orders` success path.  
 Done when: order + events + response are asserted.
 
-225. [ ] `T225` Add integration test for instrument-not-found rejection.  
+225. [x] `T225` Add integration test for instrument-not-found rejection.  
 Done when: status/code/payload fields are verified.
 
-226. [ ] `T226` Add integration test for all three risk rejection cases.  
+226. [x] `T226` Add integration test for all three risk rejection cases.  
 Done when: each risk reject code is covered.
 
-227. [ ] `T227` Add integration test for idempotent replay (same key, same payload).  
+227. [x] `T227` Add integration test for idempotent replay (same key, same payload).  
 Done when: second call returns same order response.
 
-228. [ ] `T228` Add integration test for idempotency conflict (same key, different payload).  
+228. [x] `T228` Add integration test for idempotency conflict (same key, different payload).  
 Done when: response is `409` with conflict code.
 
-229. [ ] `T229` Add integration test for parallel duplicate submissions.  
+229. [x] `T229` Add integration test for parallel duplicate submissions.  
 Done when: exactly one order row is created.
 
-230. [ ] `T230` Add integration test for `GET /orders/{id}` success and ownership control.  
+230. [x] `T230` Add integration test for `GET /orders/{id}` success and ownership control.  
 Done when: owner allowed, non-owner denied.
 
-231. [ ] `T231` Add integration test for audit event endpoint authorization.  
+231. [x] `T231` Add integration test for audit event endpoint authorization.  
 Done when: only ops role can fetch audit events.
 
-232. [ ] `T232` Add JSON contract tests against OpenAPI examples.  
+232. [x] `T232` Add JSON contract tests against OpenAPI examples.  
 Done when: payloads conform to spec in CI.
 
-233. [ ] `T233` Add code coverage reporting and threshold (for example 80%).  
+233. [x] `T233` Add code coverage reporting and threshold (for example 80%).  
 Done when: CI fails if below threshold.
 
-234. [ ] `T234` Add architecture rule tests (package/layer boundaries).  
+234. [x] `T234` Add architecture rule tests (package/layer boundaries).  
 Done when: invalid cross-layer dependencies fail build.
 
-235. [ ] `T235` Add static analysis and format checks to build.  
+235. [x] `T235` Add static analysis and format checks to build.  
 Done when: style and smell checks run automatically.
 
-236. [ ] `T236` Add regression test dataset for known risk scenarios.  
+236. [x] `T236` Add regression test dataset for known risk scenarios.  
 Done when: dataset can be rerun after any logic change.
 
 ---
@@ -838,7 +838,7 @@ Depends on: `T151` to `T200`.
 255. [x] `T255` Gate 5 complete: query + errors + observability completed.  
 Depends on: `T201` to `T220`.
 
-256. [ ] `T256` Gate 6 complete: testing and quality automation completed.  
+256. [x] `T256` Gate 6 complete: testing and quality automation completed.  
 Depends on: `T221` to `T236`.
 
 257. [ ] `T257` Gate 7 complete: perf + CI/CD + deployment completed.  
