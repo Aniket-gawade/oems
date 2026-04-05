@@ -6,7 +6,7 @@ Last updated: 2026-03-31
 
 ## Current Status
 
-1. Phases A through M are completed.
+1. Phases A through M are completed, and Phase N tasks `T237`-`T245` are completed.
 2. Root Maven build is green (`mvnw clean verify`).
 3. Active app module: `apps/oems-api` (Spring Boot, Java 25).
 4. Flyway migrations and seed data are in place (`V0` to `V13`).
@@ -18,6 +18,7 @@ Last updated: 2026-03-31
 10. Idempotency and duplicate-safety are implemented (`Idempotency-Key` required, canonical request hashing, replay/conflict handling, transactional duplicate protection, optional Redis fast-path cache, TTL cleanup scheduler, and replay/conflict metrics).
 11. Query, audit, global error handling, and observability baseline are implemented (`GET /v1/orders/{orderId}`, ops audit-event query, global API exception mapping, trace/trader MDC logging, order outcome/latency metrics, and Prometheus/Grafana alerting assets).
 12. Testing and quality automation baseline is implemented (Testcontainers-backed integration test wiring, OpenAPI example contract tests, architecture boundary tests, JaCoCo coverage gate, and Checkstyle/PMD build checks).
+13. Performance/CI/deployment baseline is implemented (order-load script, baseline perf report, tuned perf profile, CI pipeline stages, dependency vulnerability scan report step, production Dockerfile, staging deploy manifest with migration step, and release checklist).
 
 ## Phase E (DB) Snapshot
 
@@ -92,6 +93,18 @@ Last updated: 2026-03-31
    - Checkstyle (`ops/quality/checkstyle.xml`)
    - PMD (`ops/quality/pmd-ruleset.xml`)
 8. Testcontainers suites are configured with `disabledWithoutDocker=true`; they run when Docker is available and are skipped automatically otherwise.
+
+## Phase N (Performance, CI/CD, Deployment) Snapshot
+
+1. `POST /v1/orders` load script is available at `scripts/load-post-orders.js` (k6, configurable `VUS` and `DURATION`).
+2. Baseline performance report with p95/p99 and before/after tuning comparison is recorded in `docs/perf/phase1-baseline.md`.
+3. Tuned runtime profile is available in `apps/oems-api/src/main/resources/application-perf.properties`.
+4. CI pipeline is defined in `.github/workflows/ci.yml` with stages for compile, unit tests, integration tests, package, and a final quality gate.
+5. Dependency vulnerability scanning is included in CI (Trivy SARIF + JSON artifact per build).
+6. Production Docker image build is defined in root `Dockerfile` with actuator health check.
+7. Staging deployment compose manifest is available at `ops/staging/docker-compose.staging.yml`.
+8. Staging deploy script is available at `scripts/deploy-staging.ps1` (includes migration execution before API rollout).
+9. Release checklist is published at `docs/RELEASE_CHECKLIST_PHASE1.md`.
 
 ## Repository Layout
 
@@ -219,3 +232,5 @@ When infrastructure is running:
 9. Risk reject catalog: `docs/RISK_CODES.md`
 10. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
 11. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
+12. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
+13. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`

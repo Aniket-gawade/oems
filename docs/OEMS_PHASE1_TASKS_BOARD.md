@@ -1,6 +1,6 @@
 # OEMS Phase 1 Tasks Board (Atomic, Start-to-End)
 
-Last updated: 2026-03-24
+Last updated: 2026-03-31
 
 ## How to use this board
 
@@ -777,31 +777,31 @@ Done when: dataset can be rerun after any logic change.
 
 ## Phase N - Performance, CI/CD, Deployment, UAT
 
-237. [ ] `T237` Add load script for `POST /v1/orders` (k6/Gatling).  
+237. [x] `T237` Add load script for `POST /v1/orders` (k6/Gatling).  
 Done when: configurable VU and duration parameters exist.
 
-238. [ ] `T238` Run baseline performance test and capture p95/p99.  
+238. [x] `T238` Run baseline performance test and capture p95/p99.  
 Done when: report saved in `docs/perf/phase1-baseline.md`.
 
-239. [ ] `T239` Tune DB pool and app configs based on baseline results.  
+239. [x] `T239` Tune DB pool and app configs based on baseline results.  
 Done when: latency and error profile improves measurably.
 
-240. [ ] `T240` Add CI pipeline stages: compile, unit, integration, package.  
+240. [x] `T240` Add CI pipeline stages: compile, unit, integration, package.  
 Done when: PR cannot merge unless all stages pass.
 
-241. [ ] `T241` Add dependency vulnerability scan step in CI.  
+241. [x] `T241` Add dependency vulnerability scan step in CI.  
 Done when: report is produced for each build.
 
-242. [ ] `T242` Add Dockerfile for production image build.  
+242. [x] `T242` Add Dockerfile for production image build.  
 Done when: image starts and passes health endpoint check.
 
-243. [ ] `T243` Add deployment manifest (compose or k8s) for staging.  
+243. [x] `T243` Add deployment manifest (compose or k8s) for staging.  
 Done when: staging deploy is reproducible via one command/pipeline.
 
-244. [ ] `T244` Add migration execution in deployment workflow.  
+244. [x] `T244` Add migration execution in deployment workflow.  
 Done when: schema updates apply automatically on deploy.
 
-245. [ ] `T245` Add release checklist doc for Phase 1.  
+245. [x] `T245` Add release checklist doc for Phase 1.  
 Done when: checklist covers build, tests, deploy, smoke, monitor.
 
 246. [ ] `T246` Create UAT script for trader happy path and failures.  
@@ -841,7 +841,7 @@ Depends on: `T201` to `T220`.
 256. [x] `T256` Gate 6 complete: testing and quality automation completed.  
 Depends on: `T221` to `T236`.
 
-257. [ ] `T257` Gate 7 complete: perf + CI/CD + deployment completed.  
+257. [x] `T257` Gate 7 complete: perf + CI/CD + deployment completed.  
 Depends on: `T237` to `T245`.
 
 258. [ ] `T258` Gate 8 complete: UAT + go-live completed.  

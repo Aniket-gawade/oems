@@ -1,0 +1,113 @@
+services:
+  mysql:
+    image: ${MYSQL_IMAGE:-mysql:8.4}
+    container_name: oems-staging-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - staging-mysql-data:/var/lib/mysql
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h localhost -u${MYSQL_USER} -p${MYSQL_PASSWORD} --silent
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: ${REDIS_IMAGE:-redis:8.6}
+    container_name: oems-staging-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - staging-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  keycloak:
+    image: ${KEYCLOAK_IMAGE:-quay.io/keycloak/keycloak:26.5}
+    container_name: oems-staging-keycloak
+    restart: unless-stopped
+    command: ["start-dev", "--http-port=8080", "--health-enabled=true", "--import-realm"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "${KEYCLOAK_PORT:-8081}:8080"
+    volumes:
+      - staging-keycloak-data:/opt/keycloak/data
+      - ../../ops/keycloak/oems-realm-export.json:/opt/keycloak/data/import/oems-realm-export.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  oems-migrate:
+    image: flyway/flyway:11.15.0
+    container_name: oems-staging-migrate
+    command:
+      - -url=jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      - -user=${MYSQL_USER}
+      - -password=${MYSQL_PASSWORD}
+      - -baselineOnMigrate=true
+      - -locations=filesystem:/flyway/sql
+      - migrate
+    volumes:
+      - ../../apps/oems-api/src/main/resources/db/migration:/flyway/sql:ro
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: "no"
+
+  oems-api:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: oems-api:staging
+    container_name: oems-staging-api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-staging}
+      SERVER_PORT: ${SERVER_PORT:-8080}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/oems
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/oems/protocol/openid-connect/certs
+      OEMS_SECURITY_JWT_EXPECTED_AUDIENCE: ${OEMS_SECURITY_JWT_EXPECTED_AUDIENCE:-oems-api}
+      OEMS_SECURITY_CORS_ALLOWED_ORIGINS: ${OEMS_SECURITY_CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+      oems-migrate:
+        condition: service_completed_successfully
+    ports:
+      - "${API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  staging-mysql-data:
+  staging-redis-data:
+  staging-keycloak-data:

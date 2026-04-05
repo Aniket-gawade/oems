@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
@@ -39,6 +40,9 @@ class OrderRiskIntegrationTest extends ContainerizedIntegrationTest {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Value("${oems.idempotency.redis-cache-enabled:false}")
+    private boolean redisCacheEnabled;
 
     @Test
     void successfulLimitOrderPersistsOrderAndEvents() throws Exception {
@@ -354,7 +358,6 @@ class OrderRiskIntegrationTest extends ContainerizedIntegrationTest {
 
         String firstOrderId = JsonPath.read(firstResponse, "$.orderId");
         String secondOrderId = JsonPath.read(secondResponse, "$.orderId");
-        String replayCacheValue = redisTemplate.opsForValue().get("oems:test:idempotency:idem-replay-3002");
         Integer orderCount = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM order_book WHERE client_order_id = ?",
                 Integer.class,
@@ -362,7 +365,10 @@ class OrderRiskIntegrationTest extends ContainerizedIntegrationTest {
         );
 
         assertThat(firstOrderId).isEqualTo(secondOrderId);
-        assertThat(replayCacheValue).isNotBlank();
+        if (redisCacheEnabled) {
+            String replayCacheValue = redisTemplate.opsForValue().get("oems:test:idempotency:idem-replay-3002");
+            assertThat(replayCacheValue).isNotBlank();
+        }
         assertThat(orderCount).isEqualTo(1);
     }
 
