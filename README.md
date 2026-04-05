@@ -1,8 +1,8 @@
 # OEMS
 
-Order Execution and Management System (OEMS) monorepo for Phase 1.
+Order Execution and Management System (OEMS) monorepo for Phase 1 backend and Phase 2 frontend planning.
 
-Last updated: 2026-03-31
+Last updated: 2026-04-05
 
 ## Current Status
 
@@ -19,6 +19,7 @@ Last updated: 2026-03-31
 11. Query, audit, global error handling, and observability baseline are implemented (`GET /v1/orders/{orderId}`, ops audit-event query, global API exception mapping, trace/trader MDC logging, order outcome/latency metrics, and Prometheus/Grafana alerting assets).
 12. Testing and quality automation baseline is implemented (Testcontainers-backed integration test wiring, OpenAPI example contract tests, architecture boundary tests, JaCoCo coverage gate, and Checkstyle/PMD build checks).
 13. Performance/CI/deployment baseline is implemented (order-load script, baseline perf report, tuned perf profile, CI pipeline stages, dependency vulnerability scan report step, production Dockerfile, staging deploy manifest with migration step, and release checklist).
+14. Phase 2 frontend execution board is published in `docs/OEMS_PHASE2_TASKS_BOARD.md`, including manual QA execution tasks.
 
 ## Phase E (DB) Snapshot
 
@@ -222,15 +223,16 @@ When infrastructure is running:
 ## Planning and Documentation
 
 1. Task board: `docs/OEMS_PHASE1_TASKS_BOARD.md`
-2. Product requirements: `docs/PHASE1_PRD.md`
-3. Setup guide: `docs/SETUP.md`
-4. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
-5. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
-6. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
-7. Security guide: `docs/SECURITY_PHASE1.md`
-8. Secrets policy: `docs/SECRETS_POLICY.md`
-9. Risk reject catalog: `docs/RISK_CODES.md`
-10. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
-11. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
-12. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
-13. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
+2. Task board (Phase 2 frontend): `docs/OEMS_PHASE2_TASKS_BOARD.md`
+3. Product requirements: `docs/PHASE1_PRD.md`
+4. Setup guide: `docs/SETUP.md`
+5. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
+6. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
+7. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
+8. Security guide: `docs/SECURITY_PHASE1.md`
+9. Secrets policy: `docs/SECRETS_POLICY.md`
+10. Risk reject catalog: `docs/RISK_CODES.md`
+11. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
+12. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
+13. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
+14. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
