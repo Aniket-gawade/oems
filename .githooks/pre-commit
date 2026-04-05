@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+set -eu
+
+if ! git diff --cached --name-only --diff-filter=ACMR | grep -Eq '^apps/oems-web/'; then
+  exit 0
+fi
+
+echo "Running frontend pre-commit checks..."
+npm --prefix apps/oems-web run lint
+npm --prefix apps/oems-web run test:run
+

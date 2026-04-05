@@ -32,6 +32,31 @@ jobs:
       - name: Compile
         run: ./mvnw -B -ntp -DskipTests clean compile
 
+  frontend-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/oems-web/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix apps/oems-web
+
+      - name: Frontend lint
+        run: npm --prefix apps/oems-web run lint
+
+      - name: Frontend unit tests
+        run: npm --prefix apps/oems-web run test:run
+
+      - name: Frontend build
+        run: npm --prefix apps/oems-web run build
+
   unit-tests:
     needs: compile
     runs-on: ubuntu-latest
@@ -151,13 +176,41 @@ jobs:
           path: trivy-dependency-report.json
           if-no-files-found: error
 
+  frontend-dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/oems-web/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci --prefix apps/oems-web
+
+      - name: Generate npm audit report (frontend)
+        run: npm audit --prefix apps/oems-web --json > frontend-npm-audit-report.json || true
+
+      - name: Upload frontend npm audit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-npm-audit-report
+          path: frontend-npm-audit-report.json
+          if-no-files-found: error
+
   quality-gate:
     needs:
       - compile
+      - frontend-verify
       - unit-tests
       - integration-tests
       - package
       - dependency-vulnerability-scan
+      - frontend-dependency-audit
     runs-on: ubuntu-latest
     steps:
       - name: Final quality gate

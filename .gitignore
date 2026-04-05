@@ -37,6 +37,13 @@ build/
 .env.local
 .env.*.local
 !.env.example
+apps/oems-web/.env
+apps/oems-web/.env.local
+apps/oems-web/node_modules/
+apps/oems-web/dist/
+apps/oems-web/coverage/
+apps/oems-web/playwright-report/
+apps/oems-web/test-results/
 ops/keycloak/*.local.json
 ops/keycloak/*-secrets.json
 *.log

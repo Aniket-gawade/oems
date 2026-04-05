@@ -68,64 +68,64 @@ Done when: measurable completion checklist is present.
 
 ## Phase B - Frontend Bootstrap, Tooling, and Local Runtime
 
-16. [ ] `F016` Create ADR for frontend stack selection in `docs/adr/ADR-005-frontend-stack-phase2.md`.  
+16. [x] `F016` Create ADR for frontend stack selection in `docs/adr/ADR-005-frontend-stack-phase2.md`.  
 Done when: rationale and alternatives are recorded.
 
-17. [ ] `F017` Scaffold new frontend app module at `apps/oems-web`.  
+17. [x] `F017` Scaffold new frontend app module at `apps/oems-web`.  
 Done when: app boots locally with a starter page.
 
-18. [ ] `F018` Configure TypeScript strict mode and path aliases.  
+18. [x] `F018` Configure TypeScript strict mode and path aliases.  
 Done when: compile passes with strict checks enabled.
 
-19. [ ] `F019` Add package manager lockfile and enforce deterministic install.  
+19. [x] `F019` Add package manager lockfile and enforce deterministic install.  
 Done when: clean install is reproducible on a new machine.
 
-20. [ ] `F020` Configure ESLint for TypeScript + React rules.  
+20. [x] `F020` Configure ESLint for TypeScript + React rules.  
 Done when: lint command runs and fails on violations.
 
-21. [ ] `F021` Configure Prettier formatting and script integration.  
+21. [x] `F021` Configure Prettier formatting and script integration.  
 Done when: format command updates files consistently.
 
-22. [ ] `F022` Configure unit test runner (Vitest/Jest) with DOM test utilities.  
+22. [x] `F022` Configure unit test runner (Vitest/Jest) with DOM test utilities.  
 Done when: sample unit test runs in CI mode.
 
-23. [ ] `F023` Configure Playwright for browser E2E tests.  
+23. [x] `F023` Configure Playwright for browser E2E tests.  
 Done when: one smoke test runs headless in local env.
 
-24. [ ] `F024` Add frontend `.env.example` with API/auth/runtime variables.  
+24. [x] `F024` Add frontend `.env.example` with API/auth/runtime variables.  
 Done when: env file documents all required keys.
 
-25. [ ] `F025` Configure local API proxy to backend service.  
+25. [x] `F025` Configure local API proxy to backend service.  
 Done when: browser calls succeed without local CORS issues.
 
-26. [ ] `F026` Add scripts for `dev`, `build`, `test`, `lint`, and `e2e`.  
+26. [x] `F026` Add scripts for `dev`, `build`, `test`, `lint`, and `e2e`.  
 Done when: scripts execute from app root.
 
-27. [ ] `F027` Add container build file for frontend app.  
+27. [x] `F027` Add container build file for frontend app.  
 Done when: container starts and serves frontend assets.
 
-28. [ ] `F028` Add frontend service entry in `docker-compose.yml` (optional local UI).  
+28. [x] `F028` Add frontend service entry in `docker-compose.yml` (optional local UI).  
 Done when: compose can run API + web together.
 
-29. [ ] `F029` Add `scripts/run-oems-web.ps1` for one-command local web startup.  
+29. [x] `F029` Add `scripts/run-oems-web.ps1` for one-command local web startup.  
 Done when: script starts app with documented defaults.
 
-30. [ ] `F030` Add `scripts/web-healthcheck.ps1` for frontend readiness checks.  
+30. [x] `F030` Add `scripts/web-healthcheck.ps1` for frontend readiness checks.  
 Done when: script fails when app is unreachable.
 
-31. [ ] `F031` Create `docs/SETUP_PHASE2_FRONTEND.md` with setup and run steps.  
+31. [x] `F031` Create `docs/SETUP_PHASE2_FRONTEND.md` with setup and run steps.  
 Done when: new developer can launch UI without verbal help.
 
-32. [ ] `F032` Add frontend CI steps (install, lint, test, build) in `.github/workflows/ci.yml`.  
+32. [x] `F032` Add frontend CI steps (install, lint, test, build) in `.github/workflows/ci.yml`.  
 Done when: PR pipeline runs frontend stages.
 
-33. [ ] `F033` Add dependency vulnerability scan for frontend packages.  
+33. [x] `F033` Add dependency vulnerability scan for frontend packages.  
 Done when: scan report is generated in CI.
 
-34. [ ] `F034` Add pre-commit checks for changed frontend files.  
+34. [x] `F034` Add pre-commit checks for changed frontend files.  
 Done when: commit hook blocks lint/test failures.
 
-35. [ ] `F035` Verify clean bootstrap on fresh clone and document results.  
+35. [x] `F035` Verify clean bootstrap on fresh clone and document results.  
 Done when: setup works on a machine without cached dependencies.
 
 ---
@@ -753,7 +753,7 @@ Done when: `docs/POST_RELEASE_PHASE2.md` is published.
 
 ## Milestone Gates
 
-231. [ ] `F231` Gate 1 complete: planning + bootstrap complete.  
+231. [x] `F231` Gate 1 complete: planning + bootstrap complete.  
 Depends on: `F001` to `F035`.
 
 232. [ ] `F232` Gate 2 complete: shell + routing + auth foundations complete.  

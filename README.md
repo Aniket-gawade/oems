@@ -21,6 +21,7 @@ Last updated: 2026-04-05
 13. Performance/CI/deployment baseline is implemented (order-load script, baseline perf report, tuned perf profile, CI pipeline stages, dependency vulnerability scan report step, production Dockerfile, staging deploy manifest with migration step, and release checklist).
 14. Phase 2 frontend execution board is published in `docs/OEMS_PHASE2_TASKS_BOARD.md`, including manual QA execution tasks.
 15. Phase 2 Phase A (`F001`-`F015`) is completed with PRD and Definition of Done artifacts.
+16. Phase 2 Phase B (`F016`-`F035`) is completed with frontend scaffold (`apps/oems-web`), CI wiring, scripts, and setup docs.
 
 ## Phase E (DB) Snapshot
 
@@ -111,11 +112,12 @@ Last updated: 2026-04-05
 ## Repository Layout
 
 1. `apps/oems-api` - Phase 1 deployable API app.
-2. `shared/common` - Shared utilities and common types.
-3. `shared/contracts` - Shared contracts/enums.
-4. `docs` - PRD, architecture, setup guide, and task board.
-5. `scripts` - Build/test/run and local infra/DB automation scripts.
-6. `docker-compose.yml` - Local infrastructure (MySQL, Redis, Keycloak, optional Prometheus/Grafana).
+2. `apps/oems-web` - Phase 2 frontend app scaffold (Vite + React + TypeScript).
+3. `shared/common` - Shared utilities and common types.
+4. `shared/contracts` - Shared contracts/enums.
+5. `docs` - PRD, architecture, setup guide, and task board.
+6. `scripts` - Build/test/run and local infra/DB automation scripts.
+7. `docker-compose.yml` - Local infrastructure plus optional frontend web profile.
 
 ## Prerequisites
 
@@ -185,6 +187,17 @@ $env:SPRING_PROFILES_ACTIVE="local"
 ./mvnw.cmd -f apps/oems-api/pom.xml spring-boot:run
 ```
 
+Frontend module commands:
+
+```powershell
+cd apps/oems-web
+npm ci
+npm run lint
+npm run test:run
+npm run build
+npm run e2e
+```
+
 Notes:
 
 1. `clean verify` now includes Checkstyle, PMD, JaCoCo, architecture tests, and OpenAPI contract tests.
@@ -197,6 +210,8 @@ Using helper scripts:
 ./scripts/test.ps1
 ./scripts/run-oems-api.ps1
 ./scripts/run-oems-api.ps1 -MockAuth
+./scripts/run-oems-web.ps1
+./scripts/web-healthcheck.ps1
 ./scripts/security-smoke.ps1
 ./scripts/security-smoke.ps1 -StartApi
 ```
@@ -229,14 +244,15 @@ When infrastructure is running:
 4. Product requirements (Phase 2 frontend): `docs/PHASE2_PRD.md`
 5. Definition of Done (Phase 1): `docs/DEFINITION_OF_DONE_PHASE1.md`
 6. Definition of Done (Phase 2 frontend): `docs/DEFINITION_OF_DONE_PHASE2.md`
-7. Setup guide: `docs/SETUP.md`
-8. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
-9. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
-10. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
-11. Security guide: `docs/SECURITY_PHASE1.md`
-12. Secrets policy: `docs/SECRETS_POLICY.md`
-13. Risk reject catalog: `docs/RISK_CODES.md`
-14. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
-15. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
-16. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
-17. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
+7. Setup guide (backend/infrastructure): `docs/SETUP.md`
+8. Setup guide (frontend): `docs/SETUP_PHASE2_FRONTEND.md`
+9. API cookbook: `docs/OEMS_PHASE1_COOKBOOK.md`
+10. Contract versioning policy: `docs/CONTRACT_VERSIONING.md`
+11. Shared-module usage guide: `docs/SHARED_MODULE_USAGE.md`
+12. Security guide: `docs/SECURITY_PHASE1.md`
+13. Secrets policy: `docs/SECRETS_POLICY.md`
+14. Risk reject catalog: `docs/RISK_CODES.md`
+15. Idempotency troubleshooting queries: `docs/IDEMPOTENCY_TROUBLESHOOTING.md`
+16. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
+17. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
+18. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
