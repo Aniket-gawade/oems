@@ -1,6 +1,6 @@
 # OEMS Phase 2 Tasks Board (Frontend, Atomic, Start-to-End)
 
-Last updated: 2026-03-31
+Last updated: 2026-04-05
 
 ## How to use this board
 
@@ -19,49 +19,49 @@ Status legend:
 
 ## Phase A - Frontend Scope, UX, and Acceptance Criteria
 
-1. [ ] `F001` Create `docs/PHASE2_PRD.md` with frontend scope, non-scope, and user stories.  
+1. [x] `F001` Create `docs/PHASE2_PRD.md` with frontend scope, non-scope, and user stories.  
 Done when: PRD includes trader + ops UI journeys.
 
-2. [ ] `F002` Define frontend personas (`TRADER`, `OPS`, `QA`) and their goals.  
+2. [x] `F002` Define frontend personas (`TRADER`, `OPS`, `QA`) and their goals.  
 Done when: persona-specific outcomes are documented.
 
-3. [ ] `F003` Define Phase 2 screen inventory.  
+3. [x] `F003` Define Phase 2 screen inventory.  
 Done when: login, dashboard, place-order, order-detail, and ops-audit screens are listed.
 
-4. [ ] `F004` Define navigation IA and route map.  
+4. [x] `F004` Define navigation IA and route map.  
 Done when: route list and role visibility matrix are documented.
 
-5. [ ] `F005` Define non-functional targets (FCP, interaction latency, accessibility baseline).  
+5. [x] `F005` Define non-functional targets (FCP, interaction latency, accessibility baseline).  
 Done when: numeric targets exist in `docs/PHASE2_PRD.md`.
 
-6. [ ] `F006` Define browser and device support matrix.  
+6. [x] `F006` Define browser and device support matrix.  
 Done when: minimum versions + viewport breakpoints are documented.
 
-7. [ ] `F007` Define frontend security requirements for token/session handling.  
+7. [x] `F007` Define frontend security requirements for token/session handling.  
 Done when: storage and expiry strategy is explicit.
 
-8. [ ] `F008` Define frontend API dependencies against Phase 1 backend contracts.  
+8. [x] `F008` Define frontend API dependencies against Phase 1 backend contracts.  
 Done when: endpoint-to-screen mapping is documented.
 
-9. [ ] `F009` Define UX acceptance criteria for place-order flow.  
+9. [x] `F009` Define UX acceptance criteria for place-order flow.  
 Done when: success + validation + rejection experiences are specified.
 
-10. [ ] `F010` Define UX acceptance criteria for order lookup/detail flow.  
+10. [x] `F010` Define UX acceptance criteria for order lookup/detail flow.  
 Done when: found + not-found + unauthorized cases are specified.
 
-11. [ ] `F011` Define UX acceptance criteria for ops audit trail flow.  
+11. [x] `F011` Define UX acceptance criteria for ops audit trail flow.  
 Done when: role-restricted access and event display rules are documented.
 
-12. [ ] `F012` Define global loading, empty, and error state patterns.  
+12. [x] `F012` Define global loading, empty, and error state patterns.  
 Done when: pattern catalog with examples is documented.
 
-13. [ ] `F013` Define notification/toast and inline form-error standards.  
+13. [x] `F013` Define notification/toast and inline form-error standards.  
 Done when: severity and placement rules are documented.
 
-14. [ ] `F014` Define manual QA acceptance template for each feature.  
+14. [x] `F014` Define manual QA acceptance template for each feature.  
 Done when: template includes preconditions, steps, expected result, and evidence.
 
-15. [ ] `F015` Create `docs/DEFINITION_OF_DONE_PHASE2.md`.  
+15. [x] `F015` Create `docs/DEFINITION_OF_DONE_PHASE2.md`.  
 Done when: measurable completion checklist is present.
 
 ---
