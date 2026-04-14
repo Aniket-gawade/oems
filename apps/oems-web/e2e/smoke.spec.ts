@@ -1,7 +1,9 @@
 import { expect, test } from "@playwright/test";
 
-test("home screen renders", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { name: "OEMS Web" })).toBeVisible();
-  await expect(page.getByText("Phase 2 frontend scaffold is running.")).toBeVisible();
+test("trader shell renders after login", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Sign in" }).click();
+
+  await expect(page.getByRole("heading", { name: "Trader Dashboard" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
 });

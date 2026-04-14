@@ -132,79 +132,79 @@ Done when: setup works on a machine without cached dependencies.
 
 ## Phase C - App Shell, Routing, and Design System Foundation
 
-36. [ ] `F036` Create `docs/PHASE2_DESIGN_TOKENS.md` for typography/color/spacing rules.  
+36. [x] `F036` Create `docs/PHASE2_DESIGN_TOKENS.md` for typography/color/spacing rules.  
 Done when: token catalog is documented with values.
 
-37. [ ] `F037` Implement global CSS variables from token definitions.  
+37. [x] `F037` Implement global CSS variables from token definitions.  
 Done when: core UI styles consume token variables.
 
-38. [ ] `F038` Implement base layout shell (header, nav, content region).  
+38. [x] `F038` Implement base layout shell (header, nav, content region).  
 Done when: shell renders consistently across routes.
 
-39. [ ] `F039` Implement responsive breakpoints for mobile/tablet/desktop.  
+39. [x] `F039` Implement responsive breakpoints for mobile/tablet/desktop.  
 Done when: shell remains usable at supported widths.
 
-40. [ ] `F040` Add route registry and route metadata model.  
+40. [x] `F040` Add route registry and route metadata model.  
 Done when: all routes are declared in one place.
 
-41. [ ] `F041` Implement public route handling (`/login`, auth callback pages).  
+41. [x] `F041` Implement public route handling (`/login`, auth callback pages).  
 Done when: unauthenticated users can access only public routes.
 
-42. [ ] `F042` Implement protected route wrapper.  
+42. [x] `F042` Implement protected route wrapper.  
 Done when: protected routes redirect when session is missing.
 
-43. [ ] `F043` Implement role-based route gating (`TRADER`, `OPS`).  
+43. [x] `F043` Implement role-based route gating (`TRADER`, `OPS`).  
 Done when: unauthorized roles cannot load restricted screens.
 
-44. [ ] `F044` Add global app providers (auth, API client, query cache, notifications).  
+44. [x] `F044` Add global app providers (auth, API client, query cache, notifications).  
 Done when: app bootstraps with providers in one entry module.
 
-45. [ ] `F045` Add global toast/notification system with severity levels.  
+45. [x] `F045` Add global toast/notification system with severity levels.  
 Done when: success/warn/error toasts are reusable across screens.
 
-46. [ ] `F046` Implement reusable form primitives (`Input`, `Select`, `NumberInput`, `Button`).  
+46. [x] `F046` Implement reusable form primitives (`Input`, `Select`, `NumberInput`, `Button`).  
 Done when: primitives are used by at least one screen.
 
-47. [ ] `F047` Implement reusable table/list primitives for data rendering.  
+47. [x] `F047` Implement reusable table/list primitives for data rendering.  
 Done when: table supports loading and empty variants.
 
-48. [ ] `F048` Implement status badge component for order states.  
+48. [x] `F048` Implement status badge component for order states.  
 Done when: `NEW` and `REJECTED` badges are visually distinct.
 
-49. [ ] `F049` Implement skeleton loaders for async UI sections.  
+49. [x] `F049` Implement skeleton loaders for async UI sections.  
 Done when: key screens show skeletons during fetch.
 
-50. [ ] `F050` Implement reusable empty-state component.  
+50. [x] `F050` Implement reusable empty-state component.  
 Done when: empty views use a single consistent component.
 
-51. [ ] `F051` Implement reusable error-state component with retry action.  
+51. [x] `F051` Implement reusable error-state component with retry action.  
 Done when: recoverable screens can retry from error state.
 
-52. [ ] `F052` Add page-level error boundary for runtime rendering failures.  
+52. [x] `F052` Add page-level error boundary for runtime rendering failures.  
 Done when: app shows fallback UI instead of white screen.
 
-53. [ ] `F053` Create `Not Found` route page.  
+53. [x] `F053` Create `Not Found` route page.  
 Done when: invalid URLs route to custom 404 screen.
 
-54. [ ] `F054` Create `Unauthorized` route page.  
+54. [x] `F054` Create `Unauthorized` route page.  
 Done when: unauthorized navigation shows explicit access message.
 
-55. [ ] `F055` Add loading overlay utility for blocking actions.  
+55. [x] `F055` Add loading overlay utility for blocking actions.  
 Done when: submit actions can lock UI consistently.
 
-56. [ ] `F056` Add component documentation (Storybook or equivalent).  
+56. [x] `F056` Add component documentation (Storybook or equivalent).  
 Done when: core components have interactive docs.
 
-57. [ ] `F057` Add visual baseline snapshots for shell + primitives.  
+57. [x] `F057` Add visual baseline snapshots for shell + primitives.  
 Done when: snapshot drift is detectable in CI.
 
-58. [ ] `F058` Add accessibility checks for base components.  
+58. [x] `F058` Add accessibility checks for base components.  
 Done when: no critical a11y violations on shell screens.
 
-59. [ ] `F059` Add keyboard navigation baseline across app shell.  
+59. [x] `F059` Add keyboard navigation baseline across app shell.  
 Done when: nav and primary actions are keyboard-accessible.
 
-60. [ ] `F060` Update frontend architecture doc in `docs/architecture/05-frontend-container-view.md`.  
+60. [x] `F060` Update frontend architecture doc in `docs/architecture/05-frontend-container-view.md`.  
 Done when: frontend modules and dependencies are documented.
 
 ---

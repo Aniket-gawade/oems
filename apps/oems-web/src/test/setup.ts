@@ -1,1 +1,1 @@
-// Intentionally minimal for Phase B baseline test setup.
+import "whatwg-fetch";

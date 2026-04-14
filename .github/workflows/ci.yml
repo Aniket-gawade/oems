@@ -33,7 +33,7 @@ jobs:
         run: ./mvnw -B -ntp -DskipTests clean compile
 
   frontend-verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -56,6 +56,18 @@ jobs:
 
       - name: Frontend build
         run: npm --prefix apps/oems-web run build
+
+      - name: Install Playwright Chromium
+        run: npm --prefix apps/oems-web run e2e:install
+
+      - name: Frontend visual baseline tests
+        run: npm --prefix apps/oems-web run e2e:visual
+
+      - name: Frontend accessibility baseline tests
+        run: npm --prefix apps/oems-web run e2e:a11y
+
+      - name: Frontend keyboard navigation baseline tests
+        run: npm --prefix apps/oems-web run e2e:keyboard
 
   unit-tests:
     needs: compile

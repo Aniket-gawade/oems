@@ -2,7 +2,7 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1 backend and Phase 2 frontend.
 
-Last updated: 2026-04-05
+Last updated: 2026-04-14
 
 ## Current Status
 
@@ -22,6 +22,7 @@ Last updated: 2026-04-05
 14. Phase 2 frontend execution board is published in `docs/OEMS_PHASE2_TASKS_BOARD.md`, including manual QA execution tasks.
 15. Phase 2 Phase A (`F001`-`F015`) is completed with PRD and Definition of Done artifacts.
 16. Phase 2 Phase B (`F016`-`F035`) is completed with frontend scaffold (`apps/oems-web`), CI wiring, scripts, and setup docs.
+17. Phase 2 Phase C (`F036`-`F060`) is completed with app shell, route registry + guards, global providers, reusable base components, responsive tokens/CSS, and baseline a11y/visual/keyboard checks.
 
 ## Phase E (DB) Snapshot
 
@@ -112,7 +113,7 @@ Last updated: 2026-04-05
 ## Repository Layout
 
 1. `apps/oems-api` - Phase 1 deployable API app.
-2. `apps/oems-web` - Phase 2 frontend app scaffold (Vite + React + TypeScript).
+2. `apps/oems-web` - Phase 2 frontend app with shell/routing/design-system foundations (Vite + React + TypeScript).
 3. `shared/common` - Shared utilities and common types.
 4. `shared/contracts` - Shared contracts/enums.
 5. `docs` - PRD, architecture, setup guide, and task board.
@@ -196,12 +197,16 @@ npm run lint
 npm run test:run
 npm run build
 npm run e2e
+npm run e2e:visual
+npm run e2e:a11y
+npm run e2e:keyboard
 ```
 
 Notes:
 
 1. `clean verify` now includes Checkstyle, PMD, JaCoCo, architecture tests, and OpenAPI contract tests.
 2. Docker is required for executing Testcontainers-backed integration tests; when Docker is unavailable those specific tests are skipped by design.
+3. For local frontend sign-in before full OIDC flow (Phase D), set `VITE_ENABLE_MOCK_AUTH=true` in `apps/oems-web/.env`.
 
 Using helper scripts:
 
@@ -233,8 +238,9 @@ When infrastructure is running:
 
 1. Keycloak Admin: `http://localhost:8081/admin`
 2. Keycloak OEMS realm OIDC config: `http://localhost:8081/realms/oems/.well-known/openid-configuration`
-3. Prometheus (optional): `http://localhost:9090`
-4. Grafana (optional): `http://localhost:3000`
+3. Frontend UI: `http://localhost:5173`
+4. Prometheus (optional): `http://localhost:9090`
+5. Grafana (optional): `http://localhost:3000`
 
 ## Planning and Documentation
 
@@ -256,3 +262,5 @@ When infrastructure is running:
 16. Idempotency load scenario: `docs/perf/idempotency-retry-load-test.md`
 17. Phase 1 baseline performance report: `docs/perf/phase1-baseline.md`
 18. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
+19. Phase 2 design tokens: `docs/PHASE2_DESIGN_TOKENS.md`
+20. Frontend container architecture (Phase 2): `docs/architecture/05-frontend-container-view.md`

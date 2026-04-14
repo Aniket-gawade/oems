@@ -23,6 +23,7 @@ Key variables:
 1. `WEB_PORT` (default `5173`)
 2. `VITE_PROXY_TARGET` (default `http://localhost:8080`)
 3. OIDC settings (`VITE_OIDC_*`)
+4. `VITE_ENABLE_MOCK_AUTH` (`true` for local shell/routing tests, `false` for OIDC-only behavior)
 
 ## 3. Install and Run (Local)
 
@@ -74,6 +75,14 @@ Run E2E smoke tests:
 
 ```powershell
 npm run e2e
+```
+
+Run Phase C foundation checks:
+
+```powershell
+npm run e2e:visual
+npm run e2e:a11y
+npm run e2e:keyboard
 ```
 
 ## 5. Optional Docker Compose Web Service

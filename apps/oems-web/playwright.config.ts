@@ -4,6 +4,7 @@ const webPort = Number(process.env.WEB_PORT ?? 5173);
 const appUrl = `http://127.0.0.1:${webPort}`;
 
 export default defineConfig({
+  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
   testDir: "./e2e",
   fullyParallel: true,
   retries: 0,
@@ -15,6 +16,9 @@ export default defineConfig({
   },
   webServer: {
     command: `npm run dev -- --host 127.0.0.1 --port ${webPort}`,
+    env: {
+      VITE_ENABLE_MOCK_AUTH: "true"
+    },
     port: webPort,
     timeout: 120_000,
     reuseExistingServer: !process.env.CI
