@@ -1,6 +1,6 @@
 # OEMS Phase 2 Frontend Setup
 
-Last updated: 2026-04-05
+Last updated: 2026-04-18
 Applies to: `apps/oems-web`
 
 ## 1. Prerequisites
@@ -23,7 +23,8 @@ Key variables:
 1. `WEB_PORT` (default `5173`)
 2. `VITE_PROXY_TARGET` (default `http://localhost:8080`)
 3. OIDC settings (`VITE_OIDC_*`)
-4. `VITE_ENABLE_MOCK_AUTH` (`true` for local shell/routing tests, `false` for OIDC-only behavior)
+4. `VITE_ENABLE_MOCK_AUTH` (`true` for local mock mode only in local/dev/test app envs)
+5. `VITE_APP_ENV` (mock auth safety guard; non-local values force OIDC mode)
 
 ## 3. Install and Run (Local)
 
@@ -77,13 +78,25 @@ Run E2E smoke tests:
 npm run e2e
 ```
 
-Run Phase C foundation checks:
+Run auth-focused smoke tests:
+
+```powershell
+npm run e2e:auth
+$env:VITE_ENABLE_MOCK_AUTH="false"
+npm run e2e:oidc-local
+```
+
+Run baseline checks:
 
 ```powershell
 npm run e2e:visual
 npm run e2e:a11y
 npm run e2e:keyboard
 ```
+
+OIDC callback note:
+
+1. Keep OIDC redirect/post-logout/silent-callback URLs on the same host origin as the running app (`localhost` vs `127.0.0.1` mismatch will break callback state matching).
 
 ## 5. Optional Docker Compose Web Service
 

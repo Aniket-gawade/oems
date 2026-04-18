@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import App from "@/App";
 import { AppProviders } from "@/app/providers/app-providers";
 import { createAppMemoryRouter } from "@/app/routes/app-router";
@@ -48,5 +49,28 @@ describe("App routing", () => {
 
     renderWithRouter("/ops");
     expect(await screen.findByRole("heading", { name: "Unauthorized" })).toBeTruthy();
+  });
+
+  it("processes callback route and restores authenticated session", async () => {
+    renderWithRouter("/auth/callback");
+    expect(await screen.findByRole("heading", { name: "Trader Dashboard" })).toBeTruthy();
+  });
+
+  it("supports sign out flow from protected shell", async () => {
+    const user = userEvent.setup();
+    window.sessionStorage.setItem(
+      "oems-web-mock-session",
+      JSON.stringify({
+        displayName: "Trader One",
+        role: "TRADER",
+        userId: "mock-trader"
+      })
+    );
+
+    renderWithRouter("/trader");
+    expect(await screen.findByRole("heading", { name: "Trader Dashboard" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "Sign out" }));
+    expect(await screen.findByRole("heading", { name: "OEMS Login" })).toBeTruthy();
   });
 });

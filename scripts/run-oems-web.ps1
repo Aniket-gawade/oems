@@ -1,6 +1,8 @@
 param(
     [int]$Port = 5173,
     [string]$ApiProxyTarget = "http://localhost:8080",
+    [switch]$MockAuth,
+    [string]$AppEnv = "local",
     [switch]$Install
 )
 
@@ -25,6 +27,8 @@ if ($Install -or -not (Test-Path $nodeModulesPath)) {
 
 $env:WEB_PORT = "$Port"
 $env:VITE_PROXY_TARGET = $ApiProxyTarget
+$env:VITE_APP_ENV = $AppEnv
+$env:VITE_ENABLE_MOCK_AUTH = if ($MockAuth) { "true" } else { "false" }
 
 Push-Location $webAppPath
 try {

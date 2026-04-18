@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { AuthCallbackPage } from "@/pages/auth-callback-page";
+import { AuthSilentCallbackPage } from "@/pages/auth-silent-callback-page";
 import { ComponentDocsPage } from "@/pages/component-docs-page";
 import { LoginPage } from "@/pages/login-page";
 import { NotFoundPage } from "@/pages/not-found-page";
@@ -45,6 +46,13 @@ export const APP_ROUTE_REGISTRY: readonly AppRouteMetadata[] = [
     path: "/auth/callback",
     redirectIfAuthenticated: true,
     title: "Auth Callback"
+  },
+  {
+    access: "public",
+    element: <AuthSilentCallbackPage />,
+    id: "auth-silent-callback",
+    path: "/auth/silent-callback",
+    title: "Auth Silent Callback"
   },
   {
     access: "protected",

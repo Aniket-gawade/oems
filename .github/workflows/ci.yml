@@ -66,6 +66,9 @@ jobs:
       - name: Frontend accessibility baseline tests
         run: npm --prefix apps/oems-web run e2e:a11y
 
+      - name: Frontend auth smoke tests
+        run: npm --prefix apps/oems-web run e2e:auth
+
       - name: Frontend keyboard navigation baseline tests
         run: npm --prefix apps/oems-web run e2e:keyboard
 

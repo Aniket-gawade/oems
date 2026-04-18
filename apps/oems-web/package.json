@@ -13,6 +13,8 @@
     "test": "vitest",
     "test:run": "vitest run",
     "e2e": "playwright test",
+    "e2e:auth": "playwright test e2e/auth-smoke.spec.ts",
+    "e2e:oidc-local": "playwright test e2e/oidc-local.spec.ts",
     "e2e:visual": "playwright test e2e/visual-baseline.spec.ts",
     "e2e:a11y": "playwright test e2e/a11y.spec.ts",
     "e2e:keyboard": "playwright test e2e/keyboard.spec.ts",
@@ -20,6 +22,7 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.10",
+    "oidc-client-ts": "^3.2.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-router-dom": "^6.30.1"

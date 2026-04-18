@@ -1,4 +1,4 @@
-import { NavLink, Outlet, useMatches, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useMatches } from "react-router-dom";
 import { useAuth } from "@/app/providers/auth-provider";
 import { useNotifications } from "@/app/providers/notification-provider";
 import { getNavigationRoutes } from "@/app/routes/route-registry";
@@ -11,9 +11,8 @@ const isMatchHandle = (handle: unknown): handle is MatchHandle =>
   typeof handle === "object" && handle !== null && "title" in handle;
 
 export const AppShell = () => {
-  const { session, signOut } = useAuth();
+  const { authMode, session, signOut } = useAuth();
   const { notify } = useNotifications();
-  const navigate = useNavigate();
   const matches = useMatches();
   const routeTitle = [...matches]
     .reverse()
@@ -42,17 +41,28 @@ export const AppShell = () => {
           <button
             className="button button--ghost"
             onClick={() => {
-              signOut();
-              notify({
-                message: "Session cleared.",
-                severity: "info",
-                title: "Signed out"
-              });
-              navigate("/login", { replace: true });
+              void signOut()
+                .then(() => {
+                  notify({
+                    message: "Session cleared.",
+                    severity: "info",
+                    title: "Signed out"
+                  });
+                })
+                .catch((error) => {
+                  notify({
+                    message:
+                      error instanceof Error
+                        ? error.message
+                        : "Unable to complete sign-out flow. Please retry.",
+                    severity: "warning",
+                    title: "Sign-out warning"
+                  });
+                });
             }}
             type="button"
           >
-            Sign out
+            {authMode === "oidc" ? "Sign out (OIDC)" : "Sign out"}
           </button>
         </div>
       </header>
