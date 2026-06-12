@@ -1,48 +1,59 @@
-import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useNotifications } from "@/app/providers/notification-provider";
+import { ErrorState } from "@/components/feedback/error-state";
 
 export const AuthCallbackPage = () => {
-  const { signIn, supportsLocalSignIn } = useAuth();
-  const { notify } = useNotifications();
+  const { completeSignInCallback } = useAuth();
   const navigate = useNavigate();
-  const didRunRef = useRef(false);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (didRunRef.current) {
-      return;
-    }
+    let isActive = true;
 
-    didRunRef.current = true;
+    void completeSignInCallback()
+      .then((targetPath) => {
+        if (!isActive) {
+          return;
+        }
 
-    if (!supportsLocalSignIn) {
-      return;
-    }
-
-    void signIn({ displayName: "Callback User", role: "TRADER" })
-      .then(() => {
-        notify({
-          message: "Callback completed using local mock auth mode.",
-          severity: "info",
-          title: "Auth callback"
-        });
-        navigate("/", { replace: true });
+        navigate(targetPath, { replace: true });
       })
-      .catch(() => {
-        notify({
-          message: "Unable to complete callback.",
-          severity: "error",
-          title: "Auth callback failed"
-        });
+      .catch((error) => {
+        if (!isActive) {
+          return;
+        }
+
+        setCallbackError(error instanceof Error ? error.message : "Auth callback failed.");
       });
-  }, [navigate, notify, signIn, supportsLocalSignIn]);
+
+    return () => {
+      isActive = false;
+    };
+  }, [completeSignInCallback, navigate]);
 
   return (
     <main className="public-page">
       <section className="auth-card">
-        <h1>Auth callback</h1>
-        <p>Finalizing session...</p>
+        {callbackError ? (
+          <>
+            <ErrorState
+              description={callbackError}
+              onRetry={() => {
+                navigate("/login", { replace: true });
+              }}
+              title="Authentication callback failed"
+            />
+            <Link className="button button--secondary" to="/login">
+              Back to login
+            </Link>
+          </>
+        ) : (
+          <>
+            <h1>Auth callback</h1>
+            <p>Finalizing your authenticated session...</p>
+          </>
+        )}
       </section>
     </main>
   );

@@ -8,8 +8,19 @@ interface PublicRouteProps {
 }
 
 export const PublicRoute = ({ children, redirectIfAuthenticated = false }: PublicRouteProps) => {
-  const { isAuthenticated, session } = useAuth();
+  const { isAuthenticated, isAuthLoading, session } = useAuth();
   const location = useLocation();
+
+  if (isAuthLoading && redirectIfAuthenticated) {
+    return (
+      <main className="public-page">
+        <section className="auth-card">
+          <h1>Checking session</h1>
+          <p>Restoring your authenticated session...</p>
+        </section>
+      </main>
+    );
+  }
 
   if (redirectIfAuthenticated && isAuthenticated && session) {
     const targetPath =

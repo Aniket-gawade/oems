@@ -211,64 +211,64 @@ Done when: frontend modules and dependencies are documented.
 
 ## Phase D - Authentication, Session, and Authorization UX
 
-61. [ ] `F061` Integrate OIDC/Keycloak client in frontend app.  
+61. [x] `F061` Integrate OIDC/Keycloak client in frontend app.  
 Done when: login redirect flow is wired to configured realm/client.
 
-62. [ ] `F062` Implement login initiation and callback handling pages.  
+62. [x] `F062` Implement login initiation and callback handling pages.  
 Done when: successful auth returns user to protected app route.
 
-63. [ ] `F063` Implement logout flow and session cleanup.  
+63. [x] `F063` Implement logout flow and session cleanup.  
 Done when: logout clears session and redirects to login/public route.
 
-64. [ ] `F064` Implement token refresh/renewal strategy.  
+64. [x] `F064` Implement token refresh/renewal strategy.  
 Done when: long-lived session continues without manual relogin.
 
-65. [ ] `F065` Implement API auth interceptor to attach bearer token.  
+65. [x] `F065` Implement API auth interceptor to attach bearer token.  
 Done when: protected backend calls include valid `Authorization` header.
 
-66. [ ] `F066` Implement expired-session handling with user-friendly prompt.  
+66. [x] `F066` Implement expired-session handling with user-friendly prompt.  
 Done when: expired token results in clean re-auth flow.
 
-67. [ ] `F067` Implement auth failure mapping for `401` responses.  
+67. [x] `F067` Implement auth failure mapping for `401` responses.  
 Done when: session is reset and user is redirected appropriately.
 
-68. [ ] `F068` Implement authorization failure mapping for `403` responses.  
+68. [x] `F068` Implement authorization failure mapping for `403` responses.  
 Done when: user sees permission message without app crash.
 
-69. [ ] `F069` Implement role-based navigation menu visibility.  
+69. [x] `F069` Implement role-based navigation menu visibility.  
 Done when: trader and ops users see correct menu options.
 
-70. [ ] `F070` Display signed-in user identity and role in header.  
+70. [x] `F070` Display signed-in user identity and role in header.  
 Done when: user chip shows trader/ops context.
 
-71. [ ] `F071` Add mock-auth local mode for fast QA/developer testing.  
+71. [x] `F071` Add mock-auth local mode for fast QA/developer testing.  
 Done when: profile flag can emulate trader and ops sessions.
 
-72. [ ] `F072` Add local mock-auth safety guard (non-prod only).  
+72. [x] `F072` Add local mock-auth safety guard (non-prod only).  
 Done when: mock mode is disabled in staging/production builds.
 
-73. [ ] `F073` Add auth flow smoke tests (unit/integration).  
+73. [x] `F073` Add auth flow smoke tests (unit/integration).  
 Done when: callback, logout, and guard logic are covered.
 
-74. [ ] `F074` Add Playwright auth smoke tests for trader and ops users.  
+74. [x] `F074` Add Playwright auth smoke tests for trader and ops users.  
 Done when: automated login path works for both roles.
 
-75. [ ] `F075` Document frontend auth configuration in `docs/SECURITY_PHASE2_FRONTEND.md`.  
+75. [x] `F075` Document frontend auth configuration in `docs/SECURITY_PHASE2_FRONTEND.md`.  
 Done when: setup, callbacks, and role behavior are documented.
 
-76. [ ] `F076` Add unavailable-auth-server fallback UX.  
+76. [x] `F076` Add unavailable-auth-server fallback UX.  
 Done when: user sees actionable guidance when IdP is down.
 
-77. [ ] `F077` Add auth telemetry events (login success/failure, logout).  
+77. [x] `F077` Add auth telemetry events (login success/failure, logout).  
 Done when: non-PII events are emitted to logging endpoint/console.
 
-78. [ ] `F078` Validate CORS and redirect configuration in local + staging.  
+78. [x] `F078` Validate CORS and redirect configuration in local + staging.  
 Done when: no browser auth/callback errors remain.
 
-79. [ ] `F079` Add manual auth regression checklist section in QA docs.  
+79. [x] `F079` Add manual auth regression checklist section in QA docs.  
 Done when: checklist has explicit pass/fail criteria.
 
-80. [ ] `F080` Execute and record auth regression in local environment.  
+80. [x] `F080` Execute and record auth regression in local environment.  
 Done when: trader + ops auth scenarios are marked pass/fail.
 
 ---
@@ -756,7 +756,7 @@ Done when: `docs/POST_RELEASE_PHASE2.md` is published.
 231. [x] `F231` Gate 1 complete: planning + bootstrap complete.  
 Depends on: `F001` to `F035`.
 
-232. [ ] `F232` Gate 2 complete: shell + routing + auth foundations complete.  
+232. [x] `F232` Gate 2 complete: shell + routing + auth foundations complete.  
 Depends on: `F036` to `F080`.
 
 233. [ ] `F233` Gate 3 complete: API integration layer complete.  

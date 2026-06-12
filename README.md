@@ -2,7 +2,7 @@
 
 Order Execution and Management System (OEMS) monorepo for Phase 1 backend and Phase 2 frontend.
 
-Last updated: 2026-04-14
+Last updated: 2026-04-18
 
 ## Current Status
 
@@ -23,6 +23,7 @@ Last updated: 2026-04-14
 15. Phase 2 Phase A (`F001`-`F015`) is completed with PRD and Definition of Done artifacts.
 16. Phase 2 Phase B (`F016`-`F035`) is completed with frontend scaffold (`apps/oems-web`), CI wiring, scripts, and setup docs.
 17. Phase 2 Phase C (`F036`-`F060`) is completed with app shell, route registry + guards, global providers, reusable base components, responsive tokens/CSS, and baseline a11y/visual/keyboard checks.
+18. Phase 2 Phase D (`F061`-`F080`) is completed with OIDC auth flow, mock-auth safety guard, auth interceptors, auth telemetry, callback/silent-callback routes, auth smoke tests, and Phase D security/QA docs.
 
 ## Phase E (DB) Snapshot
 
@@ -197,6 +198,8 @@ npm run lint
 npm run test:run
 npm run build
 npm run e2e
+npm run e2e:auth
+npm run e2e:oidc-local
 npm run e2e:visual
 npm run e2e:a11y
 npm run e2e:keyboard
@@ -206,7 +209,7 @@ Notes:
 
 1. `clean verify` now includes Checkstyle, PMD, JaCoCo, architecture tests, and OpenAPI contract tests.
 2. Docker is required for executing Testcontainers-backed integration tests; when Docker is unavailable those specific tests are skipped by design.
-3. For local frontend sign-in before full OIDC flow (Phase D), set `VITE_ENABLE_MOCK_AUTH=true` in `apps/oems-web/.env`.
+3. OIDC is the default auth mode; optional local mock auth is available only in non-production local/dev/test environments with `VITE_ENABLE_MOCK_AUTH=true`.
 
 Using helper scripts:
 
@@ -264,3 +267,5 @@ When infrastructure is running:
 18. Phase 1 release checklist: `docs/RELEASE_CHECKLIST_PHASE1.md`
 19. Phase 2 design tokens: `docs/PHASE2_DESIGN_TOKENS.md`
 20. Frontend container architecture (Phase 2): `docs/architecture/05-frontend-container-view.md`
+21. Phase 2 frontend auth/security guide: `docs/SECURITY_PHASE2_FRONTEND.md`
+22. Phase 2 manual QA checklist: `docs/OEMS_PHASE2_MANUAL_QA_CHECKLIST.md`

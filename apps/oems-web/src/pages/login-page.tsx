@@ -1,66 +1,81 @@
 import { useMemo, useState, type FormEvent } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuth } from "@/app/providers/auth-provider";
-import { useNotifications } from "@/app/providers/notification-provider";
-import { getDefaultRouteForRole } from "@/app/routes/route-registry";
+import { runtimeConfig } from "@/config/runtime";
+import { ErrorState } from "@/components/feedback/error-state";
 import { LoadingOverlay } from "@/components/feedback/loading-overlay";
 import { Button } from "@/components/primitives/button";
 import { Input } from "@/components/primitives/input";
 import { Select } from "@/components/primitives/select";
+import type { AuthNoticeCode, UserRole } from "@/types/auth";
+
+const NOTICE_MESSAGES: Record<AuthNoticeCode, string> = {
+  AUTH_REQUIRED: "Sign in to continue.",
+  AUTH_SERVER_UNAVAILABLE:
+    "Authentication server is unavailable. Verify Keycloak at http://localhost:8081 and retry.",
+  SESSION_EXPIRED: "Your session expired. Please sign in again.",
+  SESSION_TERMINATED: "Your session was terminated. Sign in again to continue."
+};
 
 export const LoginPage = () => {
-  const { isSigningIn, signIn, supportsLocalSignIn } = useAuth();
-  const { notify } = useNotifications();
-  const navigate = useNavigate();
+  const {
+    authMode,
+    authNotice,
+    clearAuthNotice,
+    isSigningIn,
+    signIn,
+    supportsLocalSignIn
+  } = useAuth();
   const location = useLocation();
 
   const [displayName, setDisplayName] = useState("Trader One");
-  const [role, setRole] = useState<"TRADER" | "OPS">("TRADER");
+  const [role, setRole] = useState<UserRole>("TRADER");
   const [error, setError] = useState<string | null>(null);
 
-  const redirectTo = useMemo(() => {
-    if (typeof location.state === "object" && location.state && "from" in location.state) {
+  const returnPath = useMemo(() => {
+    if (typeof location.state === "object" && location.state !== null && "from" in location.state) {
       return String(location.state.from);
     }
 
-    return getDefaultRouteForRole(role);
-  }, [location.state, role]);
+    return "/";
+  }, [location.state]);
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const noticeMessage = authNotice ? NOTICE_MESSAGES[authNotice] : null;
+
+  const runSignIn = async (request?: { role?: UserRole; displayName?: string }) => {
     setError(null);
+    clearAuthNotice();
 
     try {
-      await signIn({ displayName, role });
-      notify({
-        message: `Signed in as ${displayName} (${role}).`,
-        severity: "success",
-        title: "Signed in"
+      await signIn({
+        ...request,
+        returnPath
       });
-      navigate(redirectTo, { replace: true });
     } catch (signInError) {
-      setError(signInError instanceof Error ? signInError.message : "Sign-in failed");
-      notify({
-        message: "Unable to start session.",
-        severity: "error",
-        title: "Sign-in failed"
-      });
+      setError(signInError instanceof Error ? signInError.message : "Sign-in failed.");
     }
+  };
+
+  const handleMockSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await runSignIn({ displayName, role });
   };
 
   return (
     <main className="public-page">
       <section className="auth-card">
         <h1>OEMS Login</h1>
-        <p>Use local mock login for Phase C shell and routing validation.</p>
+        <p>
+          {authMode === "mock"
+            ? "Use local mock login for fast QA and workflow testing."
+            : "Sign in with Keycloak (OIDC Authorization Code + PKCE)."}
+        </p>
 
-        {!supportsLocalSignIn ? (
-          <p className="login-note">
-            Set <code>VITE_ENABLE_MOCK_AUTH=true</code> in <code>apps/oems-web/.env</code> to enable local sign-in
-            until OIDC integration is completed in Phase D.
-          </p>
-        ) : (
-          <form className="form-grid loading-region" onSubmit={handleSubmit}>
+        {noticeMessage ? <p className="auth-notice">{noticeMessage}</p> : null}
+        {runtimeConfig.mockAuthBlockedReason ? <p className="auth-notice">{runtimeConfig.mockAuthBlockedReason}</p> : null}
+
+        {supportsLocalSignIn ? (
+          <form className="form-grid loading-region" onSubmit={handleMockSubmit}>
             <LoadingOverlay active={isSigningIn} message="Starting session..." />
             <Input
               autoComplete="name"
@@ -71,7 +86,7 @@ export const LoginPage = () => {
             />
             <Select
               label="Role"
-              onChange={(event) => setRole(event.target.value as "TRADER" | "OPS")}
+              onChange={(event) => setRole(event.target.value as UserRole)}
               options={[
                 { label: "Trader", value: "TRADER" },
                 { label: "Ops", value: "OPS" }
@@ -83,6 +98,31 @@ export const LoginPage = () => {
               Sign in
             </Button>
           </form>
+        ) : (
+          <div className="form-grid loading-region">
+            <LoadingOverlay active={isSigningIn} message="Redirecting to Keycloak..." />
+            {error ? (
+              <ErrorState
+                description={`${error} Check OIDC issuer: ${runtimeConfig.oidcIssuer}`}
+                onRetry={() => {
+                  void runSignIn();
+                }}
+                title="Sign-in currently unavailable"
+              />
+            ) : null}
+            <Button
+              isLoading={isSigningIn}
+              onClick={() => {
+                void runSignIn();
+              }}
+              type="button"
+            >
+              Sign in with Keycloak
+            </Button>
+            <p className="login-note">
+              Redirect URI: <code>{runtimeConfig.oidcRedirectUri}</code>
+            </p>
+          </div>
         )}
       </section>
     </main>

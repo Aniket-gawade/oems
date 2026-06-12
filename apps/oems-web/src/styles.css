@@ -642,6 +642,15 @@ code {
   font-size: var(--font-size-100);
 }
 
+.auth-notice {
+  background: #fff4e2;
+  border: 1px solid #f1d2a0;
+  border-radius: var(--radius-sm);
+  color: #8b5b03;
+  font-size: var(--font-size-100);
+  padding: var(--space-2) var(--space-3);
+}
+
 .button-row {
   display: flex;
   flex-wrap: wrap;

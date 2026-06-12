@@ -7,13 +7,13 @@ import { ToastViewport } from "@/components/feedback/toast-viewport";
 
 export const AppProviders = ({ children }: { children: ReactNode }) => (
   <AuthProvider>
-    <ApiClientProvider>
-      <AppQueryProvider>
-        <NotificationProvider>
+    <NotificationProvider>
+      <ApiClientProvider>
+        <AppQueryProvider>
           {children}
           <ToastViewport />
-        </NotificationProvider>
-      </AppQueryProvider>
-    </ApiClientProvider>
+        </AppQueryProvider>
+      </ApiClientProvider>
+    </NotificationProvider>
   </AuthProvider>
 );
