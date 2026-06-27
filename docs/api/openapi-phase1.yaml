@@ -11,6 +11,7 @@ servers:
 tags:
   - name: Orders
   - name: Instruments
+  - name: Ops
 security:
   - bearerAuth: []
 paths:
@@ -130,6 +131,39 @@ paths:
           $ref: '#/components/responses/InstrumentNotFoundErrorResponse'
         '500':
           $ref: '#/components/responses/InternalServerErrorResponse'
+  /v1/ops/orders/{orderId}/events:
+    get:
+      tags: [Ops]
+      summary: Get order audit events by order id
+      operationId: getOpsOrderEvents
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          description: Server-generated order identifier.
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Order audit events visible to ops users.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrderEventResponse'
+              examples:
+                events:
+                  $ref: '#/components/examples/OrderEventResponseList'
+        '401':
+          $ref: '#/components/responses/UnauthorizedErrorResponse'
+        '403':
+          $ref: '#/components/responses/ForbiddenErrorResponse'
+        '404':
+          $ref: '#/components/responses/ResourceNotFoundErrorResponse'
+        '500':
+          $ref: '#/components/responses/InternalServerErrorResponse'
 components:
   securitySchemes:
     bearerAuth:
@@ -146,6 +180,9 @@ components:
     OrderStatus:
       type: string
       enum: [NEW, REJECTED]
+    OrderEventType:
+      type: string
+      enum: [ORDER_RECEIVED, ORDER_ACCEPTED, ORDER_REJECTED]
     ErrorCode:
       type: string
       enum:
@@ -299,6 +336,33 @@ components:
         maxQty:
           type: number
           example: 100000
+    OrderEventResponse:
+      type: object
+      additionalProperties: false
+      required:
+        - eventId
+        - orderId
+        - eventType
+        - payload
+        - traceId
+        - createdAt
+      properties:
+        eventId:
+          type: integer
+          format: int64
+        orderId:
+          type: string
+          format: uuid
+        eventType:
+          $ref: '#/components/schemas/OrderEventType'
+        payload:
+          type: object
+          additionalProperties: true
+        traceId:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
     ApiError:
       type: object
       additionalProperties: false
@@ -458,6 +522,28 @@ components:
         tickSize: 0.01
         minQty: 1
         maxQty: 10000
+    OrderEventResponseList:
+      summary: Existing order audit events
+      value:
+        - eventId: 1001
+          orderId: 5bba47f9-d353-4664-9f35-7e9ee5b71adf
+          eventType: ORDER_RECEIVED
+          payload:
+            clientOrderId: cli-1001
+            symbol: AAPL
+            side: BUY
+            orderType: LIMIT
+            quantity: 10
+            price: 182.50
+          traceId: 5d6f28eb3c29415f
+          createdAt: '2026-03-15T11:30:00Z'
+        - eventId: 1002
+          orderId: 5bba47f9-d353-4664-9f35-7e9ee5b71adf
+          eventType: ORDER_ACCEPTED
+          payload:
+            status: NEW
+          traceId: 5d6f28eb3c29415f
+          createdAt: '2026-03-15T11:30:00Z'
     ValidationErrorExample:
       summary: VALIDATION_ERROR
       value:

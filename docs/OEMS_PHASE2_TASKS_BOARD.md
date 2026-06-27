@@ -275,79 +275,79 @@ Done when: trader + ops auth scenarios are marked pass/fail.
 
 ## Phase E - API Contracts, Data Layer, and Error Mapping
 
-81. [ ] `F081` Generate frontend API types from `docs/api/openapi-phase1.yaml`.  
+81. [x] `F081` Generate frontend API types from `docs/api/openapi-phase1.yaml`.  
 Done when: generated types compile and are versioned.
 
-82. [ ] `F082` Implement typed API client module for Phase 1 endpoints.  
+82. [x] `F082` Implement typed API client module for Phase 1 endpoints.  
 Done when: all used endpoints are exposed via typed functions.
 
-83. [ ] `F083` Implement standardized API error parser for shared `ApiError` payload.  
+83. [x] `F083` Implement standardized API error parser for shared `ApiError` payload.  
 Done when: parser maps `code`, `message`, `traceId`, and field errors.
 
-84. [ ] `F084` Implement frontend error-code map to user-facing messages.  
+84. [x] `F084` Implement frontend error-code map to user-facing messages.  
 Done when: known backend codes have deterministic UI text.
 
-85. [ ] `F085` Implement request correlation support (`X-Trace-Id` capture/display).  
+85. [x] `F085` Implement request correlation support (`X-Trace-Id` capture/display).  
 Done when: trace id is available in error details UI.
 
-86. [ ] `F086` Implement idempotency-key utility for order submissions.  
+86. [x] `F086` Implement idempotency-key utility for order submissions.  
 Done when: unique key generation strategy is centralized.
 
-87. [ ] `F087` Implement safe retry policy for idempotent GET requests only.  
+87. [x] `F087` Implement safe retry policy for idempotent GET requests only.  
 Done when: POST `/v1/orders` is excluded from auto-retry.
 
-88. [ ] `F088` Implement `getInstrument(symbol)` API hook/service.  
+88. [x] `F088` Implement `getInstrument(symbol)` API hook/service.  
 Done when: service handles 200 + 404 + error mapping.
 
-89. [ ] `F089` Implement `placeOrder(payload, idempotencyKey)` API hook/service.  
+89. [x] `F089` Implement `placeOrder(payload, idempotencyKey)` API hook/service.  
 Done when: service supports success, rejection, replay, and conflict responses.
 
-90. [ ] `F090` Implement `getOrder(orderId)` API hook/service.  
+90. [x] `F090` Implement `getOrder(orderId)` API hook/service.  
 Done when: service handles ownership-scoped not-found behavior.
 
-91. [ ] `F091` Implement `getOpsOrderEvents(orderId)` API hook/service.  
+91. [x] `F091` Implement `getOpsOrderEvents(orderId)` API hook/service.  
 Done when: service is restricted to ops-enabled flows.
 
-92. [ ] `F092` Implement query key factory and cache policy definitions.  
+92. [x] `F092` Implement query key factory and cache policy definitions.  
 Done when: stale/cache timings are explicit per endpoint.
 
-93. [ ] `F093` Implement shared request state helpers (`loading`, `error`, `empty`).  
+93. [x] `F093` Implement shared request state helpers (`loading`, `error`, `empty`).  
 Done when: screen hooks use common state helpers.
 
-94. [ ] `F094` Implement field-level validation mapping from backend errors.  
+94. [x] `F094` Implement field-level validation mapping from backend errors.  
 Done when: backend validation errors bind to correct form fields.
 
-95. [ ] `F095` Implement risk reject-code display mapping using `docs/RISK_CODES.md`.  
+95. [x] `F095` Implement risk reject-code display mapping using `docs/RISK_CODES.md`.  
 Done when: `MAX_QTY`, `MAX_NOTIONAL`, `PRICE_BAND` show clear UX messages.
 
-96. [ ] `F096` Implement idempotency replay response UX contract in data layer.  
+96. [x] `F096` Implement idempotency replay response UX contract in data layer.  
 Done when: replayed response is detectable by UI.
 
-97. [ ] `F097` Implement idempotency conflict response UX contract in data layer.  
+97. [x] `F097` Implement idempotency conflict response UX contract in data layer.  
 Done when: conflict response exposes actionable message + key context.
 
-98. [ ] `F098` Add API adapter unit tests for all request/response mappers.  
+98. [x] `F098` Add API adapter unit tests for all request/response mappers.  
 Done when: mapper tests cover success and failure branches.
 
-99. [ ] `F099` Add integration tests for error parser and trace-id extraction.  
+99. [x] `F099` Add integration tests for error parser and trace-id extraction.  
 Done when: tests validate standardized error handling.
 
-100. [ ] `F100` Add integration test for idempotency replay handling path.  
+100. [x] `F100` Add integration test for idempotency replay handling path.  
 Done when: second same-key response maps correctly in UI state.
 
-101. [ ] `F101` Add integration test for idempotency conflict handling path.  
+101. [x] `F101` Add integration test for idempotency conflict handling path.  
 Done when: same-key different-payload error maps correctly.
 
-102. [ ] `F102` Add mock API fixtures for frontend manual testing.  
+102. [x] `F102` Add mock API fixtures for frontend manual testing.  
 Done when: QA can run UI in mock mode for deterministic scenarios.
 
-103. [ ] `F103` Create `docs/OEMS_PHASE2_API_INTEGRATION.md` for frontend API usage.  
+103. [x] `F103` Create `docs/OEMS_PHASE2_API_INTEGRATION.md` for frontend API usage.  
 Done when: each screen-to-endpoint mapping is documented.
 
-104. [ ] `F104` Add contract drift check between generated types and OpenAPI spec in CI.  
+104. [x] `F104` Add contract drift check between generated types and OpenAPI spec in CI.  
 Done when: CI fails when API contract generation is stale.
 
-105. [ ] `F105` Validate full frontend data layer against local running backend.  
+105. [x] `F105` Validate full frontend data layer against local running backend.  
 Done when: all integrated endpoints work in local e2e smoke.
 
 ---
