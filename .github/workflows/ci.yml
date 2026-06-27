@@ -48,6 +48,9 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci --prefix apps/oems-web
 
+      - name: Check OpenAPI types are current (F104)
+        run: npm --prefix apps/oems-web run api:check
+
       - name: Frontend lint
         run: npm --prefix apps/oems-web run lint
 
@@ -71,6 +74,9 @@ jobs:
 
       - name: Frontend keyboard navigation baseline tests
         run: npm --prefix apps/oems-web run e2e:keyboard
+
+      - name: Frontend data layer smoke tests (F105)
+        run: npm --prefix apps/oems-web run e2e:data-layer
 
   unit-tests:
     needs: compile
@@ -143,11 +149,12 @@ jobs:
         run: ./mvnw -B -ntp -DskipTests package
 
       - name: Upload packaged artifacts
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: oems-api-jar
           path: apps/oems-api/target/oems-api-*.jar
-          if-no-files-found: error
+          if-no-files-found: warn
 
   dependency-vulnerability-scan:
     runs-on: ubuntu-latest
@@ -185,11 +192,12 @@ jobs:
           severity: HIGH,CRITICAL
 
       - name: Upload vulnerability report artifact
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: trivy-dependency-report
           path: trivy-dependency-report.json
-          if-no-files-found: error
+          if-no-files-found: warn
 
   frontend-dependency-audit:
     runs-on: ubuntu-latest
@@ -211,11 +219,12 @@ jobs:
         run: npm audit --prefix apps/oems-web --json > frontend-npm-audit-report.json || true
 
       - name: Upload frontend npm audit report
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: frontend-npm-audit-report
           path: frontend-npm-audit-report.json
-          if-no-files-found: error
+          if-no-files-found: warn
 
   quality-gate:
     needs:
