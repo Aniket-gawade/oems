@@ -21,6 +21,7 @@
     "e2e:a11y": "playwright test e2e/a11y.spec.ts",
     "e2e:keyboard": "playwright test e2e/keyboard.spec.ts",
     "e2e:data-layer": "playwright test e2e/api-data-layer-smoke.spec.ts",
+    "e2e:place-order": "playwright test e2e/place-order-smoke.spec.ts",
     "e2e:install": "playwright install --with-deps chromium"
   },
   "dependencies": {

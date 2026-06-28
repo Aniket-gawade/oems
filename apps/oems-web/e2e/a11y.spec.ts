@@ -33,3 +33,15 @@ test("app shell has no critical accessibility violations", async ({ page }) => {
   );
   expect(criticalViolations).toEqual([]);
 });
+
+test("place order form has no critical accessibility violations (F135)", async ({ page }) => {
+  await setMockSession(page);
+  await page.goto("/trader/place-order");
+  await expect(page.getByRole("heading", { name: "Place Order" })).toBeVisible();
+
+  const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+  const criticalViolations = accessibilityScanResults.violations.filter(
+    (violation) => violation.impact === "critical"
+  );
+  expect(criticalViolations).toEqual([]);
+});

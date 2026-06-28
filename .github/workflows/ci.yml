@@ -78,6 +78,9 @@ jobs:
       - name: Frontend data layer smoke tests (F105)
         run: npm --prefix apps/oems-web run e2e:data-layer
 
+      - name: Frontend place-order smoke tests (F134)
+        run: npm --prefix apps/oems-web run e2e:place-order
+
   unit-tests:
     needs: compile
     runs-on: ubuntu-latest
