@@ -1,6 +1,6 @@
 # OEMS Phase 2 Tasks Board (Frontend, Atomic, Start-to-End)
 
-Last updated: 2026-04-05
+Last updated: 2026-06-28
 
 ## How to use this board
 
@@ -354,94 +354,94 @@ Done when: all integrated endpoints work in local e2e smoke.
 
 ## Phase F - Trader Workbench (Order Entry and Submission Flow)
 
-106. [ ] `F106` Create trader dashboard route and baseline layout.  
+106. [x] `F106` Create trader dashboard route and baseline layout.  
 Done when: trader lands on dashboard after login.
 
-107. [ ] `F107` Create place-order page route and page shell.  
+107. [x] `F107` Create place-order page route and page shell.  
 Done when: page is accessible from trader navigation.
 
-108. [ ] `F108` Implement order ticket form fields (`symbol`, `side`, `orderType`, `quantity`, `price`).  
+108. [x] `F108` Implement order ticket form fields (`symbol`, `side`, `orderType`, `quantity`, `price`).  
 Done when: all required inputs render and bind state.
 
-109. [ ] `F109` Implement dynamic field behavior for `MARKET` vs `LIMIT` orders.  
+109. [x] `F109` Implement dynamic field behavior for `MARKET` vs `LIMIT` orders.  
 Done when: price input is shown/required only for `LIMIT`.
 
-110. [ ] `F110` Implement client-side validation matching backend rules.  
+110. [x] `F110` Implement client-side validation matching backend rules.  
 Done when: invalid inputs are blocked pre-submit with clear messages.
 
-111. [ ] `F111` Implement decimal input controls and precision formatting.  
+111. [x] `F111` Implement decimal input controls and precision formatting.  
 Done when: quantity/price precision behavior is consistent.
 
-112. [ ] `F112` Implement instrument symbol search/autocomplete.  
+112. [x] `F112` Implement instrument symbol search/autocomplete.  
 Done when: user can quickly locate seeded symbols.
 
-113. [ ] `F113` Fetch and display instrument constraints (tradable, min/max qty, tick size).  
+113. [x] `F113` Fetch and display instrument constraints (tradable, min/max qty, tick size).  
 Done when: constraints are visible before submission.
 
-114. [ ] `F114` Implement notional preview calculation in UI.  
+114. [x] `F114` Implement notional preview calculation in UI.  
 Done when: preview updates as quantity/price fields change.
 
-115. [ ] `F115` Implement submit-state locking and duplicate-click guard.  
+115. [x] `F115` Implement submit-state locking and duplicate-click guard.  
 Done when: multiple rapid clicks produce only one outgoing submit.
 
-116. [ ] `F116` Attach generated idempotency key on each new submit action.  
+116. [x] `F116` Attach generated idempotency key on each new submit action.  
 Done when: outgoing order request always includes an idempotency key.
 
-117. [ ] `F117` Implement success state with order-id link and summary toast.  
+117. [x] `F117` Implement success state with order-id link and summary toast.  
 Done when: successful order shows order id and next action link.
 
-118. [ ] `F118` Implement rejection state panel with backend reject code/message.  
+118. [x] `F118` Implement rejection state panel with backend reject code/message.  
 Done when: rejected orders display clear reason and guidance.
 
-119. [ ] `F119` Implement validation-error inline binding for backend field errors.  
+119. [x] `F119` Implement validation-error inline binding for backend field errors.  
 Done when: backend `VALIDATION_ERROR` highlights exact controls.
 
-120. [ ] `F120` Implement network-failure UX with retry option.  
+120. [x] `F120` Implement network-failure UX with retry option.  
 Done when: temporary failures show retry path without data loss.
 
-121. [ ] `F121` Preserve user draft on non-success submit outcomes.  
+121. [x] `F121` Preserve user draft on non-success submit outcomes.  
 Done when: draft values remain after error/rejection.
 
-122. [ ] `F122` Implement post-success reset behavior for order form.  
+122. [x] `F122` Implement post-success reset behavior for order form.  
 Done when: form resets to default state after successful submit.
 
-123. [ ] `F123` Implement "resubmit with same idempotency key" QA/debug control (non-prod only).  
+123. [x] `F123` Implement "resubmit with same idempotency key" QA/debug control (non-prod only).  
 Done when: QA can intentionally test replay path from UI.
 
-124. [ ] `F124` Implement "submit with edited payload same key" QA/debug control (non-prod only).  
+124. [x] `F124` Implement "submit with edited payload same key" QA/debug control (non-prod only).  
 Done when: QA can intentionally trigger conflict path from UI.
 
-125. [ ] `F125` Add large-notional confirmation prompt before final submit.  
+125. [x] `F125` Add large-notional confirmation prompt before final submit.  
 Done when: configured threshold forces explicit user confirmation.
 
-126. [ ] `F126` Add keyboard-first submission support for power users.  
+126. [x] `F126` Add keyboard-first submission support for power users.  
 Done when: form can be completed and submitted without mouse.
 
-127. [ ] `F127` Add recent submission list widget on trader dashboard.  
+127. [x] `F127` Add recent submission list widget on trader dashboard.  
 Done when: latest order attempts appear with status badges.
 
-128. [ ] `F128` Add quick link from recent submissions to order-detail route.  
+128. [x] `F128` Add quick link from recent submissions to order-detail route.  
 Done when: clicking row navigates to `/orders/{orderId}`.
 
-129. [ ] `F129` Implement unknown-instrument error UX on order form.  
+129. [x] `F129` Implement unknown-instrument error UX on order form.  
 Done when: unknown symbol path is distinguishable from generic failure.
 
-130. [ ] `F130` Implement risk-reject helper text mapped to reject code.  
+130. [x] `F130` Implement risk-reject helper text mapped to reject code.  
 Done when: each risk reject code has actionable user hint.
 
-131. [ ] `F131` Add unit tests for order form validation and conditional fields.  
+131. [x] `F131` Add unit tests for order form validation and conditional fields.  
 Done when: tests cover both MARKET and LIMIT validation branches.
 
-132. [ ] `F132` Add integration tests for place-order success and rejection flows.  
+132. [x] `F132` Add integration tests for place-order success and rejection flows.  
 Done when: API/UI integration assertions pass for core scenarios.
 
-133. [ ] `F133` Add integration tests for idempotency replay/conflict UX states.  
+133. [x] `F133` Add integration tests for idempotency replay/conflict UX states.  
 Done when: replay and conflict states render expected UI.
 
-134. [ ] `F134` Add Playwright E2E tests for trader happy paths (LIMIT + MARKET).  
+134. [x] `F134` Add Playwright E2E tests for trader happy paths (LIMIT + MARKET).  
 Done when: end-to-end tests pass against local backend.
 
-135. [ ] `F135` Validate accessibility of order form (labels, errors, focus order).  
+135. [x] `F135` Validate accessibility of order form (labels, errors, focus order).  
 Done when: no critical a11y issues remain on order screen.
 
 ---
@@ -762,7 +762,7 @@ Depends on: `F036` to `F080`.
 233. [ ] `F233` Gate 3 complete: API integration layer complete.  
 Depends on: `F081` to `F105`.
 
-234. [ ] `F234` Gate 4 complete: trader place-order journey complete.  
+234. [x] `F234` Gate 4 complete: trader place-order journey complete.  
 Depends on: `F106` to `F135`.
 
 235. [ ] `F235` Gate 5 complete: order lookup/detail journey complete.  
